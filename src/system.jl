@@ -13,7 +13,7 @@ end
 """
     Crée et retourne un objet DoublePendule.
 """
-function create_pendulum(l1, l2, m1, m2, g, state_init)
+function create_double_pendulum(l1, l2, m1, m2, g, state_init)
     p1 = Pendule(l1, m1)
     p2 = Pendule(l2, m2)
 
@@ -23,7 +23,7 @@ end
 """
     Crée un pendule double similaire à celui de la vidéo.
 """
-function create_real_pendulum()
+function create_real_double_pendulum()
     l1 = 91.74e-2 # Longueur tige 1 (m)
     l2 = 69.33e-2 # Longueur tige 2 (m)
 
