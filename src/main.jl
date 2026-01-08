@@ -88,7 +88,7 @@ function mode_analyse()
     header = ["temps_s" "energie_joules" "erreur_relative"]
 
     # Écriture du fichier
-    open("./res/donnees_stabilite.csv", "w") do io
+    open("./res/energy_stability.csv", "w") do io
         writedlm(io, header, ',')
         writedlm(io, data_to_save, ',')
     end
