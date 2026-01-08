@@ -68,3 +68,26 @@ function rk4_step!(dp::DoublePendule, dt::Float64)
     dp.state = curr_state + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 end
 
+"""
+    Convertit les coordonnées polaires en coordonnées cartésiennes pour l'affichage.
+
+    Arguments:
+        - dp : Un DoublePendule.
+
+    Retourne:
+        - Les coordonnées (x1, y1, x2, y2) du DoublePendule.
+"""
+function polar_to_cartesian(dp::DoublePendule)
+    l1 = dp.p1.l
+    l2 = dp.p2.l
+    theta1 = dp.state[1]
+    theta2 = dp.state[2]
+
+    x1 = l1 * sin(theta1)
+    y1 = -l1 * cos(theta1)
+
+    x2 = x1 + l2 * sin(theta2)
+    y2 = y1 - l2 * cos(theta2)
+
+    return (x1, y1, x2, y2)
+end
