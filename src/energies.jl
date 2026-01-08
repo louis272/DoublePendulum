@@ -19,7 +19,7 @@ function kinetic_energy(dp::DoublePendule)
     g = dp.g
 
     ke = (0.5 * (m1 + m2) * l1^2 * omega1^2
-            + 0.5 * m2 * l2^2 * omega2^2)
+            + 0.5 * m2 * l2^2 * omega2^2
             + m2 * l1 * l2 * omega1 * omega2 * cos(theta1 - theta2))
 
     return ke
