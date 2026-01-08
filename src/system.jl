@@ -32,8 +32,8 @@ function create_real_double_pendulum()
 
     g = 9.81 # Accélération gravitationnelle (m/s²)
 
-    theta1_0 = π/2
-    theta2_0 = π/2
+    theta1_0 = π
+    theta2_0 = π - 0.01
     omega1_0 = 0.0
     omega2_0 = 0.0
     initial_state = [theta1_0, theta2_0, omega1_0, omega2_0]
