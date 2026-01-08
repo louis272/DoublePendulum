@@ -38,5 +38,5 @@ function create_real_double_pendulum()
     omega2_0 = 0.0
     initial_state = [theta1_0, theta2_0, omega1_0, omega2_0]
 
-    return create_pendulum(l1, l2, m1, m2, g, initial_state)
+    return create_double_pendulum(l1, l2, m1, m2, g, initial_state)
 end
