@@ -1,4 +1,5 @@
 using Plots
+using DelimitedFiles
 
 include("utils.jl")
 include("energies.jl")
@@ -53,6 +54,7 @@ function mode_analyse()
     results = zeros(4, n_steps)
     history_theta1 = zeros(n_steps)
     history_theta2 = zeros(n_steps)
+    energies = zeros(n_steps)
 
     println("Starting analysis simulation for $t_max seconds")
 
@@ -63,20 +65,46 @@ function mode_analyse()
         results[:, i] = dp.state
         history_theta1[i] = dp.state[1]
         history_theta2[i] = dp.state[2]
+
+        energies[i] = total_energy(dp)
     end
 
     println("Analysis simulation completed")
 
-    # Visualisation des angles au cours du temps
-    p = plot(times, [history_theta1, history_theta2],
+    # Graphique des angles en fonction du temps
+    p1 = plot(times, [history_theta1, history_theta2],
         label=["Theta 1" "Theta 2"],
         xlabel="Temps (s)", ylabel="Angle (rad)",
         title="Evolution temporelle"
     )
 
-    savefig(p, "analyse_resultats.png")
-    println("Graphique sauvegardé : analyse_resultats.png")
-    display(p)
+    # Graphique de la variation de l'énergie totale en fonction du temps
+    e0 = energies[1]
+    energy_deviation = (energies .- e0) ./ abs(e0)
+
+    # Création de la matrice de données
+    # Colonnes : Temps | Energie (J) | Erreur Relative
+    data_to_save = [times energies energy_deviation]
+    header = ["temps_s" "energie_joules" "erreur_relative"]
+
+    # Écriture du fichier
+    open("./res/donnees_stabilite.csv", "w") do io
+        writedlm(io, header, ',')
+        writedlm(io, data_to_save, ',')
+    end
+    println("Fichier CSV généré avec succès.")
+
+    p2 = plot(times, energy_deviation,
+        label="Erreur relative",
+        xlabel="Temps (s)", ylabel="ΔE / E0",
+        title="Stabilité de l'énergie (Précision)",
+        color=:red, lw=1.5
+    )
+
+    savefig(p1, "./res/angles_evolution.png")
+    println("Graphique sauvegardé : angles_evolution.png")
+    savefig(p2, "./res/energy_stability.png")
+    println("Graphique sauvegardé : energy_stability.png")
 
     return times, results
 end
