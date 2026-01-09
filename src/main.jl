@@ -12,12 +12,19 @@ function mode_live()
     steps_per_frame = 40 # On fait 40 calculs avant de dessiner une image
     L = (dp.p1.l + dp.p2.l) * 1.1 # Limites graphiques
 
+    dt_render = steps_per_frame * dt  # Temps physique par image
+    sim_time = 0.0
+
     println("Starting live simulation (CTRL+C to stop)")
     try
         while true
+            start_time = time()
+
             # Calculs physiques
             for _ in 1:steps_per_frame
                 rk4_step!(dp, dt)
+
+                sim_time += dt
             end
 
             # Récupération des coordonnées
@@ -30,8 +37,17 @@ function mode_live()
                 legend=false, grid=false, axis=false,
                 title="Double Pendule (Live)"
             )
+
+            time_str = "t = $(round(sim_time, digits=2)) s"
+            #annotate!(p, -L*0.8, L*0.9, text(time_str, :blue, 12, :left))
+
             display(p)
-            sleep(0.005)
+
+            elapsed_time = time() - start_time
+            sleep_duration = max(0.0, dt_render - elapsed_time)
+            println(sleep_duration)
+
+            sleep(sleep_duration)
         end
     catch e
         if isa(e, InterruptException)
