@@ -24,11 +24,11 @@ end
     Crée un pendule double similaire à celui de la vidéo.
 """
 function create_real_double_pendulum()
-    l1 = 91.74e-2 # Longueur tige 1 (m)
-    l2 = 69.33e-2 # Longueur tige 2 (m)
+    l1 = 91.74e-3 # Longueur tige 1 (m)
+    l2 = 69.33e-3 # Longueur tige 2 (m)
 
-    m1 = 30.00e-2 # Masse aléatoire pendule 1 (kg)
-    m2 = 2.00e-2  # Masse aléatoire pendule 2 (kg)
+    m1 = 30.00e-3 # Masse aléatoire pendule 1 (kg)
+    m2 = 2.00e-3  # Masse aléatoire pendule 2 (kg)
 
     g = 9.81 # Accélération gravitationnelle (m/s²)
 
