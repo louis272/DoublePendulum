@@ -63,8 +63,8 @@ function mode_analyse()
 
         times[i] = (i) * dt
         results[:, i] = dp.state
-        history_theta1[i] = dp.state[1]
-        history_theta2[i] = dp.state[2]
+        history_theta1[i] = dp.state[1] % (2*pi)
+        history_theta2[i] = dp.state[2] % (2*pi)
 
         energies[i] = total_energy(dp)
     end
@@ -78,16 +78,14 @@ function mode_analyse()
         title="Evolution temporelle"
     )
 
-    # Graphique de la variation de l'énergie totale en fonction du temps
+    # Graphique et csv de la variation de l'énergie totale en fonction du temps
     e0 = energies[1]
     energy_deviation = (energies .- e0) ./ abs(e0)
 
-    # Création de la matrice de données
     # Colonnes : Temps | Energie (J) | Erreur Relative
     data_to_save = [times energies energy_deviation]
     header = ["temps_s" "energie_joules" "erreur_relative"]
 
-    # Écriture du fichier
     open("./res/energy_stability.csv", "w") do io
         writedlm(io, header, ',')
         writedlm(io, data_to_save, ',')
