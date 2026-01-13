@@ -15,11 +15,11 @@ function create_double_pendulum(l1, l2, m1, m2, g, state_init)
     Create and return a DoublePendulum object.
 
     Args:
-        l1 (Float64): Length of the first pendulum rod (m).
-        l2 (Float64): Length of the second pendulum rod (m).
-        m1 (Float64): Mass of the first pendulum (kg).
-        m2 (Float64): Mass of the second pendulum (kg).
-        g (Float64): Gravitational acceleration (m/s^2).
+        l1 (Float64): Length of the first pendulum rod [m].
+        l2 (Float64): Length of the second pendulum rod [m].
+        m1 (Float64): Mass of the first pendulum [kg].
+        m2 (Float64): Mass of the second pendulum [kg].
+        g (Float64): Gravitational acceleration [m/s^2].
         state_init (Vector{Float64}): Initial state [θ1, θ2, ω1, ω2].
 
     Returns:
