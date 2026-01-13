@@ -1,16 +1,17 @@
 include("system.jl")
 
-"""
-    Calcule les dérivées temporelles de l'état (vitesses et accélérations).
+function derivees(dp::DoublePendulum, state::Vector{Float64})
+    """
+    Calculate the time derivatives of the state (velocities and accelerations).
 
-    Arguments:
-        - dp : L'objet pendule (pour m1, m2, l1, l2, g)
-        - state : L'état [θ1, θ2, ω1, ω2] pour lequel on veut la dérivée.
+    Args:
+        dp : The DoublePendulum object (for m1, m2, l1, l2, g).
+        state : The state [θ1, θ2, ω1, ω2] for which the derivative is needed.
 
-    Retourne:
-        - Le vecteur dérivé [dθ1/dt, dθ2/dt, dω1/dt, dω2/dt] = [ω1, ω2, α1, α2]
-"""
-function derivees(dp::DoublePendule, state::Vector{Float64})
+    Returns:
+        The derivative vector [dθ1/dt, dθ2/dt, dω1/dt, dω2/dt] = [ω1, ω2, α1, α2].
+    """
+
     theta1, theta2, omega1, omega2 = state
     m1 = dp.p1.m
     m2 = dp.p2.m
@@ -18,26 +19,26 @@ function derivees(dp::DoublePendule, state::Vector{Float64})
     l2 = dp.p2.l
     g  = dp.g
 
-    # Calculs préliminaires
+    # Preliminary calculations
     s1, c1 = sin(theta1), cos(theta1)
     s2, c2 = sin(theta2), cos(theta2)
     delta_theta = theta1 - theta2
     s_delta = sin(delta_theta)
     c_delta = cos(delta_theta)
 
-    denom = 2*m1 + m2 - m2 * cos(2*delta_theta) # Dénominateur commun
+    denom = 2*m1 + m2 - m2 * cos(2*delta_theta) # Common denominator
 
-    # Calcul des accélérations
+    # Calculate accelerations
 
-    # Accélération angulaire 1
-    # Numérateur (Force: Gravité + Centrifuge + Coriolis)
+    # Angular acceleration 1
+    # Numerator (Force: Gravity + Centrifugal + Coriolis)
     num_1 = (-g * (2*m1 + m2) * s1
                 - m2 * g * sin(theta1 - 2*theta2)
                 - 2 * s_delta * m2 * (omega2^2 * l2 + omega1^2 * l1 * c_delta))
 
     alpha1 = num_1 / (l1 * denom)
 
-    # Accélération angulaire 2
+    # Angular acceleration 2
     num_2 = (2 * s_delta * (omega1^2 * l1 * (m1 + m2)
                 + g * (m1 + m2) * c1
                 + omega2^2 * l2 * m2 * c_delta))
@@ -47,37 +48,38 @@ function derivees(dp::DoublePendule, state::Vector{Float64})
     return [omega1, omega2, alpha1, alpha2]
 end
 
+function rk4_step!(dp::DoublePendulum, dt::Float64)
+    """
+    Perform a time integration step (RK4) and update the state of the DoublePendulum.
 
-"""
-    Effectue un pas d'intégration temporelle (RK4) et met à jour l'état du pendule.
+    Args:
+        dp : The mutable DoublePendulum object.
+        dt : Time step.
+    """
 
-    Arguments:
-        - dp : L'objet mutable DoublePendule.
-        - dt : Pas de temps.
-"""
-function rk4_step!(dp::DoublePendule, dt::Float64)
     curr_state = dp.state
 
-    # Calcul des coefficients RK4
-    k1 = derivees(dp, curr_state)                 # Pente au début de l'intervalle
-    k2 = derivees(dp, curr_state .+ 0.5dt .* k1)  # Pente au milieu de l'intervalle (estimation 1)
-    k3 = derivees(dp, curr_state .+ 0.5dt .* k2)  # Pente au milieu de l'intervalle (estimation 2)
-    k4 = derivees(dp, curr_state .+ dt .* k3)     # Pente à la fin de l'intervalle
+    # Calculate RK4 coefficients
+    k1 = derivees(dp, curr_state)                 # Slope at the beginning of the interval
+    k2 = derivees(dp, curr_state .+ 0.5dt .* k1)  # Slope in the middle of the interval (estimate 1)
+    k3 = derivees(dp, curr_state .+ 0.5dt .* k2)  # Slope in the middle of the interval (estimate 2)
+    k4 = derivees(dp, curr_state .+ dt .* k3)     # Slope at the end of the interval
 
-    # Moyenne pondérée des pentes
+    # Weighted average of slopes
     dp.state = curr_state + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 end
 
-"""
-    Convertit les coordonnées polaires en coordonnées cartésiennes pour l'affichage.
+function polar_to_cartesian(dp::DoublePendulum)
+    """
+    Convert polar coordinates to cartesian coordinates for visualization.
 
-    Arguments:
-        - dp : Un DoublePendule.
+    Args:
+        dp : A DoublePendulum object.
 
-    Retourne:
-        - Les coordonnées (x1, y1, x2, y2) du DoublePendule.
-"""
-function polar_to_cartesian(dp::DoublePendule)
+    Returns:
+        The coordinates (x1, y1, x2, y2) of the DoublePendulum.
+    """
+
     l1 = dp.p1.l
     l2 = dp.p2.l
     theta1 = dp.state[1]

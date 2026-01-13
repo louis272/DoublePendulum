@@ -1,36 +1,52 @@
-mutable struct Pendule
-    l::Float64  # Longueur [m]
-    m::Float64  # Masse [kg]
+mutable struct Pendulum
+    l::Float64  # Length [m]
+    m::Float64  # Mass [kg]
 end
 
-mutable struct DoublePendule
-    p1::Pendule
-    p2::Pendule
-    g::Float64             # Gravité [m/s^2]
+mutable struct DoublePendulum
+    p1::Pendulum
+    p2::Pendulum
+    g::Float64             # Gravitational acceleration [m/s^2]
     state::Vector{Float64} # [θ1, θ2, ω1, ω2]
 end
 
-"""
-    Crée et retourne un objet DoublePendule.
-"""
 function create_double_pendulum(l1, l2, m1, m2, g, state_init)
-    p1 = Pendule(l1, m1)
-    p2 = Pendule(l2, m2)
+    """
+    Create and return a DoublePendulum object.
 
-    return DoublePendule(p1, p2, g, state_init)
+    Args:
+        l1 (Float64): Length of the first pendulum rod (m).
+        l2 (Float64): Length of the second pendulum rod (m).
+        m1 (Float64): Mass of the first pendulum (kg).
+        m2 (Float64): Mass of the second pendulum (kg).
+        g (Float64): Gravitational acceleration (m/s^2).
+        state_init (Vector{Float64}): Initial state [θ1, θ2, ω1, ω2].
+
+    Returns:
+        DoublePendulum: A new DoublePendulum object.
+    """
+
+    p1 = Pendulum(l1, m1)
+    p2 = Pendulum(l2, m2)
+
+    return DoublePendulum(p1, p2, g, state_init)
 end
 
-"""
-    Crée un pendule double similaire à celui de la vidéo.
-"""
 function create_real_double_pendulum()
-    l1 = 91.74e-3 # Longueur tige 1 (m)
-    l2 = 69.33e-3 # Longueur tige 2 (m)
+    """
+    Create a DoublePendulum object similar to the one in the video.
 
-    m1 = 30.00e-3 # Masse aléatoire pendule 1 (kg)
-    m2 = 2.00e-3  # Masse aléatoire pendule 2 (kg)
+    Returns:
+        DoublePendulum: A DoublePendulum object with predefined parameters.
+    """
 
-    g = 9.81 # Accélération gravitationnelle (m/s²)
+    l1 = 91.74e-3 # Length of the first rod [m]
+    l2 = 69.33e-3 # Length of the second rod [m]
+
+    m1 = 30.00e-3 # Mass of the first pendulum [kg]
+    m2 = 2.00e-3  # Mass of the second pendulum [kg]
+
+    g = 9.81 # Gravitational acceleration [m/s^2]
 
     theta1_0 = π
     theta2_0 = π - 0.01
