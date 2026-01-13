@@ -6,7 +6,7 @@ import os
 
 # Configuration
 VIDEO_PATH = os.path.join(os.path.dirname(__file__), "..", "res", "First_Video_2s.mp4")
-OUTPUT_CSV = "video_data.csv"
+OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "..", "res", "video_data.csv")
 TARGET_HEIGHT = 800
 
 
