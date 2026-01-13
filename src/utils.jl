@@ -93,3 +93,52 @@ function polar_to_cartesian(dp::DoublePendulum)
 
     return (x1, y1, x2, y2)
 end
+
+function wrap_angle(angle::Float64)
+    """
+    Wrap an angle to the range [-π, π].
+
+    Args:
+        angle : The angle in radians.
+
+    Returns:
+        The wrapped angle in radians.
+    """
+
+    return mod(angle + π, 2π) - π
+end
+
+function wrap_angles(angles::Vector{Float64})
+    """
+    Wrap a vector of angles to the range [-π, π].
+
+    Args:
+        angles : A vector of angles in radians.
+
+    Returns:
+        A vector of wrapped angles in radians.
+    """
+
+    return [wrap_angle(angle) for angle in angles]
+end
+
+function unwrap_angle(angle::Float64, angle_prev::Float64)
+    """
+    Unwrap an angle, given the previous unwrapped angle.
+
+    Args:
+        angle : The angle in radians.
+
+    Returns:
+        The unwrapped angle in radians.
+    """
+
+    # Calculer la différence entre l'angle actuel et le précédent
+    delta = angle - angle_prev
+
+    # Ramener cette différence dans [-π, π]
+    delta = mod(delta + pi, 2*pi) - pi
+
+    # L'angle unwrappé est l'angle précédent + la différence corrigée
+    return angle_prev + delta
+end
