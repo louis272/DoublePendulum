@@ -194,7 +194,7 @@ def main():
     # Export the data to a CSV file
     if data:
         df = pd.DataFrame(data, columns=["time_s", "theta1_exp", "theta2_exp"])
-        df.to_csv(OUTPUT_CSV, index=False)
+        df.to_csv(OUTPUT_CSV, index=False, sep=';')
         print(f"Done! {len(data)} points saved in '{OUTPUT_CSV}'.")
     else:
         print("No valid data extracted.")
