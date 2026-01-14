@@ -96,7 +96,7 @@ end
 
 function wrap_angle(angle::Float64)
     """
-    Wrap an angle to the range [-π, π].
+    Wrap an angle to the range [-π, π).
 
     Args:
         angle : The angle in radians.
