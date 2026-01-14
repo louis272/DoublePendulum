@@ -42,6 +42,7 @@ function create_real_double_pendulum()
 
     l1 = 91.74e-3 # Length of the first rod [m]
     l2 = 69.33e-3 # Length of the second rod [m]
+    #l2 = 67.95e-3 # Adjusted length of the second rod [m]
 
     m1 = 30.00e-3 # Mass of the first pendulum [kg]
     m2 = 2.00e-3  # Mass of the second pendulum [kg]
