@@ -133,12 +133,12 @@ function unwrap_angle(angle::Float64, angle_prev::Float64)
         The unwrapped angle in radians.
     """
 
-    # Calculer la différence entre l'angle actuel et le précédent
+    # Calculate the difference between the current angle and the previous one
     delta = angle - angle_prev
 
-    # Ramener cette différence dans [-π, π]
+    # Bring this difference into [-π, π]
     delta = mod(delta + pi, 2*pi) - pi
 
-    # L'angle unwrappé est l'angle précédent + la différence corrigée
+    # The unwrapped angle is the previous angle + the corrected difference
     return angle_prev + delta
 end
