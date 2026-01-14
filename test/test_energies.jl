@@ -31,7 +31,7 @@ include("../src/energies.jl")
     @testset "Potential Energy (V)" begin
         # Case 1: Horizontal (theta = pi/2) -> y1=0, y2=0 -> V=0
         dp_flat = make_dp(π/2, π/2, 0.0, 0.0)
-        @test isapprox(potential_energy(dp_flat), 0.0, atol=1e-10)
+        @test isapprox(potential_energy(dp_flat), 0.0, atol=1e-12)
 
         # Case 2: Vertical down (theta = 0) -> y1=-1, y2=-2
         dp_down = make_dp(0.0, 0.0, 0.0, 0.0)
