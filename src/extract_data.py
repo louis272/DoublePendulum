@@ -162,12 +162,16 @@ def main():
             prev_m1_pos = m1_pos
             prev_m2_pos = m2_pos
 
-            # Calculate angles
+            # Calculate angles [rad]
             theta1 = calculate_angle(pivot_pos, m1_pos)
             theta2 = calculate_angle(m1_pos, m2_pos)
 
+            # Calculate length of rods [pixels]
+            l1 = dist(pivot_pos, m1_pos)
+            l2 = dist(m1_pos, m2_pos)
+
             time_s = frame_idx / fps
-            data.append([time_s, theta1, theta2])
+            data.append([time_s, theta1, theta2, l1, l2])
 
             # Draw lines and circles for visualization
             cv2.line(frame, pivot_pos, m1_pos, (255, 0, 0), 2)
@@ -193,7 +197,7 @@ def main():
 
     # Export the data to a CSV file
     if data:
-        df = pd.DataFrame(data, columns=["time_s", "theta1_exp", "theta2_exp"])
+        df = pd.DataFrame(data, columns=["time_s", "theta1_exp", "theta2_exp", "l1_exp", "l2_exp"])
         df.to_csv(OUTPUT_CSV, index=False, sep=';')
         print(f"Done! {len(data)} points saved in '{OUTPUT_CSV}'.")
     else:
