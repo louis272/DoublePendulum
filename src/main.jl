@@ -200,13 +200,13 @@ function mode_comparison()
 
     # Plot comparison (wrapped angles)
     # Angle 1
-    p1 = plot(t_exp, theta1_exp, seriestype=:scatter, label="Video", markersize=2, color=:blue, alpha=0.5)
+    p1 = plot(t_exp, theta1_exp, label="Video", lw=2, color=:blue)
     plot!(p1, sim_time, wrap_angles(sim_theta1), label="Simulation", lw=2, color=:red)
     title!(p1, "Theta 1 : Reality vs Simulation")
     ylabel!(p1, "Angle [rad]")
 
     # Angle 2
-    p2 = plot(t_exp, theta2_exp, seriestype=:scatter, label="Video", markersize=2, color=:blue, alpha=0.5)
+    p2 = plot(t_exp, theta2_exp, label="Video", lw=2, color=:blue)
     plot!(p2, sim_time, wrap_angles(sim_theta2), label="Simulation", lw=2, color=:red)
     title!(p2, "Theta 2 : Reality vs Simulation")
     xlabel!(p2, "Time [s]")
@@ -217,20 +217,14 @@ function mode_comparison()
 
     # Plot comparison (angles unwrapped for continuous curves)
     # Theta 1
-    p1 = plot(t_exp, theta1_exp_unwrapped,
-        seriestype=:scatter, label="Experimental Data",
-        markersize=2, color=:blue, alpha=0.5)
-    plot!(p1, sim_time, sim_theta1,
-        label="Simulation", lw=2, color=:red)
+    p1 = plot(t_exp, theta1_exp_unwrapped, seriestype=:scatter, label="Experimental Data", markersize=2, color=:blue, alpha=0.5)
+    plot!(p1, sim_time, sim_theta1, label="Simulation", lw=2, color=:red)
     title!(p1, "Theta 1: Reality vs Simulation")
     ylabel!(p1, "Angle [rad]")
 
     # Theta 2
-    p2 = plot(t_exp, theta2_exp_unwrapped,
-        seriestype=:scatter, label="Experimental Data",
-        markersize=2, color=:blue, alpha=0.5)
-    plot!(p2, sim_time, sim_theta2,
-        label="Simulation", lw=2, color=:red)
+    p2 = plot(t_exp, theta2_exp_unwrapped, seriestype=:scatter, label="Experimental Data", markersize=2, color=:blue, alpha=0.5)
+    plot!(p2, sim_time, sim_theta2, label="Simulation", lw=2, color=:red)
     title!(p2, "Theta 2: Reality vs Simulation")
     xlabel!(p2, "Time [s]")
     ylabel!(p2, "Angle [rad]")
