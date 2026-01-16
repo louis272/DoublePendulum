@@ -142,3 +142,13 @@ function unwrap_angle(angle::Float64, angle_prev::Float64)
     # The unwrapped angle is the previous angle + the corrected difference
     return angle_prev + delta
 end
+
+function estimate_initial_angular_velocity(times::Vector{Float64}, angles::Vector{Float64}, N::Int)
+    # Moyenne des vitesses instantanées sur les N premiers points
+    omega_sum = 0.0
+    for i in 1:N
+        omega_sum += (angles[i+1] - angles[i]) / (times[i+1] - times[i])
+    end
+
+    return omega_sum / N
+end
