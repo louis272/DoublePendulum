@@ -45,7 +45,6 @@ function mode_live()
 
             elapsed_time = time() - start_time
             sleep_duration = max(0.0, dt_render - elapsed_time)
-            println(sleep_duration)
 
             sleep(sleep_duration)
         end
@@ -153,22 +152,14 @@ function mode_comparison()
     theta1_0 = theta1_exp_unwrapped[1] # Initial angle theta 1 [rad]
     theta2_0 = theta2_exp_unwrapped[1] # Initial angle theta 2 [rad]
 
-    # Calculate initial angular velocities by averaging over N points to avoid noise
+    # Calculate initial angular velocities by averaging over N points
     N = min(10, length(t_exp) - 1)  # Use 10 points or fewer if not enough data
 
     # Angular velocity 1 (average of derivatives) [rad/s]
-    omega1_sum = 0.0
-    for i in 1:N
-        omega1_sum += (theta1_exp_unwrapped[i+1] - theta1_exp_unwrapped[i]) / (t_exp[i+1] - t_exp[i])
-    end
-    omega1_0 = omega1_sum / N
+    omega1_0 = estimate_initial_angular_velocity(t_exp, theta1_exp_unwrapped, N)
 
     # Angular velocity 2 (average of derivatives) [rad/s]
-    omega2_sum = 0.0
-    for i in 1:N
-        omega2_sum += (theta2_exp_unwrapped[i+1] - theta2_exp_unwrapped[i]) / (t_exp[i+1] - t_exp[i])
-    end
-    omega2_0 = omega2_sum / N
+    omega2_0 = estimate_initial_angular_velocity(t_exp, theta2_exp_unwrapped, N)
 
     println("================================")
     println("Initial Conditions")
