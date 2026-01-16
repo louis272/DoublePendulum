@@ -247,7 +247,13 @@ function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbo
     optimal_theta2_1 = values_1[idx[1]]
     optimal_theta2_2 = values_2[idx[2]]
 
-    return (optimal_theta1_1, optimal_theta1_2), (optimal_theta2_1, optimal_theta2_2)
+    # Compute final optimal values
+    total_errors = errors_theta1 .+ errors_theta2
+    min_err, idx = findmin(total_errors)
+    optimal_total_1 = values_1[idx[1]]
+    optimal_total_2 = values_2[idx[2]]
+
+    return (optimal_theta1_1, optimal_theta1_2), (optimal_theta2_1, optimal_theta2_2), (optimal_total_1, optimal_total_2)
 end
 
 function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, range_percent=10.0, steps=200)
@@ -392,14 +398,17 @@ end
 #
 # compare_lengths(91.74, round(l2_optimal, digits=2), "./res/video_data.csv")
 
-(m1_optimal_theta1, m2_optimal_theta1), (m1_optimal_theta2, m2_optimal_theta2) = optimize_m1_m2(30.00e-3, 2.00e-3, "./res/video_data.csv")
-println("Optimal masses for θ1 fit : m1 = $(round(m1_optimal_theta1*1e3, digits=3)) g, m2 = $(round(m2_optimal_theta1*1e3, digits=3)) g")
-println("Optimal masses for θ2 fit : m1 = $(round(m1_optimal_theta2*1e3, digits=3)) g, m2 = $(round(m2_optimal_theta2*1e3, digits=3)) g")
+(m1_optimal_theta1, m2_optimal_theta1), (m1_optimal_theta2, m2_optimal_theta2), (m1_optimal_total, m2_optimal_total) = optimize_m1_m2(30.00e-3, 2.00e-3, "./res/video_data.csv")
+println("Optimal masses for θ1 fit : m1 = $(round(m1_optimal_theta1*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta1*1e3, digits=2)) g")
+println("Optimal masses for θ2 fit : m1 = $(round(m1_optimal_theta2*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta2*1e3, digits=2)) g")
+println("Optimal masses for total fit : m1 = $(round(m1_optimal_total*1e3, digits=2)) g, m2 = $(round(m2_optimal_total*1e3, digits=2)) g")
 
-(l1_optimal_theta1, l2_optimal_theta1), (l1_optimal_theta2, l2_optimal_theta2) = optimize_l1_l2(91.74, 69.33, "./res/video_data.csv")
+(l1_optimal_theta1, l2_optimal_theta1), (l1_optimal_theta2, l2_optimal_theta2), (l1_optimal_total, l2_optimal_total) = optimize_l1_l2(91.74, 69.33, "./res/video_data.csv")
 println("Optimal lengths for θ1 fit : l1 = $(round(l1_optimal_theta1, digits=2)) mm, l2 = $(round(l2_optimal_theta1, digits=2)) mm")
 println("Optimal lengths for θ2 fit : l1 = $(round(l1_optimal_theta2, digits=2)) mm, l2 = $(round(l2_optimal_theta2, digits=2)) mm")
+println("Optimal lengths for total fit : l1 = $(round(l1_optimal_total, digits=2)) mm, l2 = $(round(l2_optimal_total, digits=2)) mm")
 
-(omega1_optimal_theta1, omega2_optimal_theta1), (omega1_optimal_theta2, omega2_optimal_theta2) = optimize_omega1_omega2(0.0, 0.0, "./res/video_data.csv")
+(omega1_optimal_theta1, omega2_optimal_theta1), (omega1_optimal_theta2, omega2_optimal_theta2), (omega1_optimal_total, omega2_optimal_total) = optimize_omega1_omega2(0.0, 0.0, "./res/video_data.csv")
 println("Optimal angular velocities for θ1 fit : ω1 = $(round(omega1_optimal_theta1, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta1, digits=2)) rad/s")
 println("Optimal angular velocities for θ2 fit : ω1 = $(round(omega1_optimal_theta2, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta2, digits=2)) rad/s")
+println("Optimal angular velocities for total fit : ω1 = $(round(omega1_optimal_total, digits=2)) rad/s, ω2 = $(round(omega2_optimal_total, digits=2)) rad/s")
