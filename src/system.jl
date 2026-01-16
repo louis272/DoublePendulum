@@ -49,10 +49,10 @@ function create_real_double_pendulum()
 
     g = 9.81 # Gravitational acceleration [m/s^2]
 
-    theta1_0 = π
-    theta2_0 = π - 0.01
-    omega1_0 = 0.0
-    omega2_0 = 0.0
+    theta1_0 = -3.111 # Initial angle 1 [rad]
+    theta2_0 = -3.031 # Initial angle 2 [rad]
+    omega1_0 = 0.302 # Initial angular velocity 1 [rad/s]
+    omega2_0 = 3.567 # Initial angular velocity 2 [rad/s]
     initial_state = [theta1_0, theta2_0, omega1_0, omega2_0]
 
     return create_double_pendulum(l1, l2, m1, m2, g, initial_state)
