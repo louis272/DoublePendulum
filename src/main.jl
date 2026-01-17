@@ -106,7 +106,6 @@ function mode_analysis()
         writedlm(io, header, ',')
         writedlm(io, data_to_save, ',')
     end
-    println("CSV file successfully generated.")
 
     p2 = plot(times, energy_deviation,
         label="Relative Error",
@@ -116,9 +115,7 @@ function mode_analysis()
     )
 
     savefig(p1, "./res/angles_evolution.png")
-    println("Graph saved: angles_evolution.png")
     savefig(p2, "./res/energy_stability.png")
-    println("Graph saved: energy_stability.png")
 
     # Energy conservation statistics
     max_drift = maximum(abs.(energy_deviation))
@@ -203,13 +200,13 @@ function mode_comparison()
     # Angle 1
     p1 = plot(t_exp, theta1_exp, label="Video", lw=2, color=:blue)
     plot!(p1, sim_time, wrap_angles(sim_theta1), label="Simulation", lw=2, color=:red)
-    title!(p1, "Theta 1 : Reality vs Simulation")
+    title!(p1, "Theta 1: Reality vs Simulation")
     ylabel!(p1, "Angle [rad]")
 
     # Angle 2
     p2 = plot(t_exp, theta2_exp, label="Video", lw=2, color=:blue)
     plot!(p2, sim_time, wrap_angles(sim_theta2), label="Simulation", lw=2, color=:red)
-    title!(p2, "Theta 2 : Reality vs Simulation")
+    title!(p2, "Theta 2: Reality vs Simulation")
     xlabel!(p2, "Time [s]")
     ylabel!(p2, "Angle [rad]")
 
@@ -278,7 +275,7 @@ function main()
     println("1. Real-time simulation")
     println("2. Analysis and result saving")
     println("3. Comparison with experimental data")
-    print("Enter 1, 2 or 3 : ")
+    print("Enter 1, 2 or 3: ")
     choice = readline()
 
     if choice == "1"
