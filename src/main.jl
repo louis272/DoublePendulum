@@ -1,5 +1,6 @@
 using Plots
 using DelimitedFiles
+using Statistics
 
 include("utils.jl")
 include("energies.jl")
@@ -119,6 +120,15 @@ function mode_analysis()
     savefig(p2, "./res/energy_stability.png")
     println("Graph saved: energy_stability.png")
 
+    # Energy conservation statistics
+    max_drift = maximum(abs.(energy_deviation))
+    mean_drift = mean(abs.(energy_deviation))
+    println("================================")
+    println("Energy Conservation Statistics")
+    println("Max drift: $(max_drift)")
+    println("Mean drift: $(mean_drift)")
+    println("================================")
+
     return times, results
 end
 
@@ -222,6 +232,44 @@ function mode_comparison()
 
     final_plot = plot(p1, p2, layout=(2,1), size=(800,600))
     savefig(final_plot, "./res/comparison_reality_simulation_unwrapped.png")
+
+    # Calculate RMSE
+    # Interpolation of simulation data at experimental time points
+    sim_theta1_interp = [sim_theta1[argmin(abs.(sim_time .- t))] for t in t_exp]
+    sim_theta2_interp = [sim_theta2[argmin(abs.(sim_time .- t))] for t in t_exp]
+
+    println("================================")
+    println("Errors (RMSE)")
+
+    # Time segments [s]
+    mask_p1 = t_exp .<= 1.0
+    mask_p2 = (t_exp .> 1.0) .& (t_exp .<= 1.5)
+    mask_p3 = t_exp .> 1.5
+
+    # Local function to calculate and display the error of a segment
+    function display_segment(mask, segment_name)
+        if count(mask) == 0
+            println("$segment_name: No data")
+            return
+        end
+
+        # Local RMSE calculation
+        err1 = sqrt(mean((sim_theta1_interp[mask] .- theta1_exp_unwrapped[mask]).^2))
+        err2 = sqrt(mean((sim_theta2_interp[mask] .- theta2_exp_unwrapped[mask]).^2))
+
+        # Formatted display
+        println("$segment_name: θ1 = $(round(err1, digits=3)) rad, θ2 = $(round(err2, digits=3)) rad")
+    end
+
+    display_segment(mask_p1, "Phase 1 [0.0 - 1.0s]")
+    display_segment(mask_p2, "Phase 2 [1.0 - 1.5s]")
+    display_segment(mask_p3, "Phase 3 [> 1.5s]    ")
+
+    # Total RMSE
+    rmse_global1 = sqrt(mean((sim_theta1_interp .- theta1_exp_unwrapped).^2))
+    rmse_global2 = sqrt(mean((sim_theta2_interp .- theta2_exp_unwrapped).^2))
+    println("Global: θ1 = $(round(rmse_global1, digits=3)) rad, θ2 = $(round(rmse_global2, digits=3)) rad")
+    println("================================")
 end
 
 
