@@ -1,12 +1,13 @@
 include("system.jl")
 
-function derivees(dp::DoublePendulum, state::Vector{Float64})
+function derivatives(dp::DoublePendulum, state::Vector{Float64})
     """
     Calculate the time derivatives of the state (velocities and accelerations).
+    Source: https://www.myphysicslab.com/pendulum/double-pendulum-en.html
 
     Args:
-        dp : The DoublePendulum object (for m1, m2, l1, l2, g).
-        state : The state [θ1, θ2, ω1, ω2] for which the derivative is needed.
+        dp: The DoublePendulum object (for m1, m2, l1, l2, g).
+        state: The state [θ1, θ2, ω1, ω2] for which the derivative is needed.
 
     Returns:
         The derivative vector [dθ1/dt, dθ2/dt, dω1/dt, dω2/dt] = [ω1, ω2, α1, α2].
@@ -28,8 +29,7 @@ function derivees(dp::DoublePendulum, state::Vector{Float64})
 
     denom = 2*m1 + m2 - m2 * cos(2*delta_theta) # Common denominator
 
-    # Calculate accelerations
-
+    ### Calculate accelerations
     # Angular acceleration 1
     # Numerator (Force: Gravity + Centrifugal + Coriolis)
     num_1 = (-g * (2*m1 + m2) * s1
@@ -51,19 +51,22 @@ end
 function rk4_step!(dp::DoublePendulum, dt::Float64)
     """
     Perform a time integration step (RK4) and update the state of the DoublePendulum.
+    Sources:
+        https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+        https://www.myphysicslab.com/explain/runge-kutta-en.html
 
     Args:
-        dp : The mutable DoublePendulum object.
-        dt : Time step.
+        dp: The mutable DoublePendulum object.
+        dt: Time step.
     """
 
     curr_state = dp.state
 
     # Calculate RK4 coefficients
-    k1 = derivees(dp, curr_state)                 # Slope at the beginning of the interval
-    k2 = derivees(dp, curr_state .+ 0.5dt .* k1)  # Slope in the middle of the interval (estimate 1)
-    k3 = derivees(dp, curr_state .+ 0.5dt .* k2)  # Slope in the middle of the interval (estimate 2)
-    k4 = derivees(dp, curr_state .+ dt .* k3)     # Slope at the end of the interval
+    k1 = derivatives(dp, curr_state)                 # Slope at the beginning of the interval
+    k2 = derivatives(dp, curr_state .+ 0.5dt .* k1)  # Slope in the middle of the interval (estimate 1)
+    k3 = derivatives(dp, curr_state .+ 0.5dt .* k2)  # Slope in the middle of the interval (estimate 2)
+    k4 = derivatives(dp, curr_state .+ dt .* k3)     # Slope at the end of the interval
 
     # Weighted average of slopes
     dp.state = curr_state + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
@@ -74,7 +77,7 @@ function polar_to_cartesian(dp::DoublePendulum)
     Convert polar coordinates to cartesian coordinates for visualization.
 
     Args:
-        dp : A DoublePendulum object.
+        dp: A DoublePendulum object.
 
     Returns:
         The coordinates (x1, y1, x2, y2) of the DoublePendulum.
@@ -99,7 +102,7 @@ function wrap_angle(angle::Float64)
     Wrap an angle to the range [-π, π).
 
     Args:
-        angle : The angle in radians.
+        angle: The angle in radians.
 
     Returns:
         The wrapped angle in radians.
@@ -113,7 +116,7 @@ function wrap_angles(angles::Vector{Float64})
     Wrap a vector of angles to the range [-π, π].
 
     Args:
-        angles : A vector of angles in radians.
+        angles: A vector of angles in radians.
 
     Returns:
         A vector of wrapped angles in radians.
@@ -127,7 +130,7 @@ function unwrap_angle(angle::Float64, angle_prev::Float64)
     Unwrap an angle, given the previous unwrapped angle.
 
     Args:
-        angle : The angle in radians.
+        angle: The angle in radians.
 
     Returns:
         The unwrapped angle in radians.
@@ -144,7 +147,18 @@ function unwrap_angle(angle::Float64, angle_prev::Float64)
 end
 
 function estimate_initial_angular_velocity(times::Vector{Float64}, angles::Vector{Float64}, N::Int)
-    # Moyenne des vitesses instantanées sur les N premiers points
+    """
+    Estimate the initial angular velocity by averaging over the first N points.
+
+    Args:
+        times: A vector of time points.
+        angles: A vector of angular positions corresponding to the time points.
+        N: The number of points to use for the estimation.
+
+    Returns:
+        The estimated initial angular velocity.
+    """
+
     omega_sum = 0.0
     for i in 1:N
         omega_sum += (angles[i+1] - angles[i]) / (times[i+1] - times[i])

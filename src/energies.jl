@@ -2,9 +2,9 @@ include("system.jl")
 
 function kinetic_energy(dp::DoublePendulum)
     """
-    Calculates the kinetic energy (T) of the system.
+    Calculate the kinetic energy (T) of the system.
     Formula: T = 0.5*(m1+m2)*l1^2*omega1^2 + 0.5*m2*l2^2*omega2^2 + m2*l1*l2*omega1*omega2*cos(theta1-theta2)
-    Source: https://fr.wikipedia.org/wiki/%C3%89nergie_cin%C3%A9tique
+    Source: https://en.wikipedia.org/wiki/Kinetic_energy
 
     Args:
         dp: A DoublePendulum object.
@@ -29,9 +29,9 @@ end
 
 function potential_energy(dp::DoublePendulum)
     """
-    Calculates the potential energy (P) of the system.
+    Calculate the potential energy (P) of the system.
     Formula: V = m1*g*y1 + m2*g*y2 with y1 = -l1*cos(theta1) and y2 = y1 - l2*cos(theta2)
-    Source: https://fr.wikipedia.org/wiki/%C3%89nergie_potentielle
+    Source: https://en.wikipedia.org/wiki/Potential_energy
 
     Args:
         dp: A DoublePendulum object.
@@ -55,8 +55,8 @@ end
 
 function total_energy(dp::DoublePendulum)
     """
-    Returns the total mechanical energy E = T + P.
-    Source: https://fr.wikipedia.org/wiki/%C3%89nergie_m%C3%A9canique
+    Calculate the total mechanical energy (E = T + P) of the system.
+    Source: https://en.wikipedia.org/wiki/Mechanical_energy
 
     Args:
         dp: A DoublePendulum object.

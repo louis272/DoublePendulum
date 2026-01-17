@@ -73,7 +73,7 @@ include("../src/utils.jl")
         # Stationary state: theta=0, omega=0.
         # Angular acceleration must be zero (stable equilibrium)
         dp_stable = create_double_pendulum(l1, l2, m1, m2, g, [0.0, 0.0, 0.0, 0.0])
-        res = derivees(dp_stable, dp_stable.state)
+        res = derivatives(dp_stable, dp_stable.state)
 
         @test length(res) == 4
         @test res[1] == 0.0 # dtheta1/dt = omega1
@@ -84,7 +84,7 @@ include("../src/utils.jl")
         # Horizontal state (π/2) without velocity
         # Gravity must create immediate acceleration
         dp_falling = create_double_pendulum(l1, l2, m1, m2, g, [π/2, π/2, 0.0, 0.0])
-        res_falling = derivees(dp_falling, dp_falling.state)
+        res_falling = derivatives(dp_falling, dp_falling.state)
 
         @test res_falling[1] == 0.0 # Initial velocity zero
         @test res_falling[3] < 0.0  # Must start falling (negative acceleration for theta)

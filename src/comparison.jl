@@ -6,21 +6,21 @@ include("utils.jl")
 
 function compare_lengths(l1_measure_mm::Float64, l2_measure_mm::Float64, csv_path::String)
     """
-    Compares the lengths of the bars measured by hand (in mm) with those extracted from the video (in pixels).
+    Compare the lengths of the bars measured by hand (in mm) with those extracted from the video (in pixels).
     This function allows to:
     1. Calculate the scale [pixels/mm] of the video.
     2. Check the stability of the tracking (the noise on the length).
     3. Detect perspective problems (if the scale calculated for L1 is different from L2).
 
-    Args :
-        l1_measure_mm : Measured length of the first bar [mm].
-        l2_measure_mm : Measured length of the second bar [mm].
-        csv_path : Path to the CSV file containing the video data.
+    Args:
+        l1_measure_mm: Measured length of the first bar [mm].
+        l2_measure_mm: Measured length of the second bar [mm].
+        csv_path: Path to the CSV file containing the video data.
     """
 
     # Load data
     if !isfile(csv_path)
-        println("Error: File not found : $csv_path")
+        println("Error: File not found: $csv_path")
         return
     end
 
@@ -48,11 +48,11 @@ function compare_lengths(l1_measure_mm::Float64, l2_measure_mm::Float64, csv_pat
     scale_l2 = mean_l2_px / l2_measure_mm
     ecart_echelle = abs(scale_px_per_mm - scale_l2) / scale_px_per_mm * 100
 
-    println("LENGTH COMPARISON REPORT")
-    println("Estimated scale (via L1) : $(round(scale_px_per_mm, digits=2)) px/mm")
-    println("Tracking stability L1 : ± $(round(std_l1, digits=2)) px")
-    println("Tracking stability L2 : ± $(round(std_l2, digits=2)) px")
-    println("Consistency L1 vs L2 : Scale difference of $(round(ecart_echelle, digits=2)) %")
+    println("Lengths Comparison Results")
+    println("Estimated scale (via L1): $(round(scale_px_per_mm, digits=2)) px/mm")
+    println("Tracking stability L1: ± $(round(std_l1, digits=2)) px")
+    println("Tracking stability L2: ± $(round(std_l2, digits=2)) px")
+    println("Consistency L1 vs L2: Scale difference of $(round(ecart_echelle, digits=2)) %")
 
     # Graphs
     # Graph L1
@@ -76,21 +76,21 @@ end
 
 function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String; range_percent=1.0, steps=200)
     """
-    Finds the value of L2 that minimizes the scale inconsistency between the two bars.
+    Find the value of L2 that minimizes the scale inconsistency between the two bars.
 
-    Args :
-        l1_ref_mm : The reliable reference length (Bar 1 measured by hand) [mm].
-        l2_guess_mm : An estimate of bar 2 (to center the search) [mm].
-        range_percent : Search range around the estimate (by default ±1%).
-        steps : Number of steps in the scanning method (by default 200).
+    Args:
+        l1_ref_mm: The reference length (Bar 1 measured by hand) [mm].
+        l2_guess_mm: An estimate of bar 2 (to center the search) [mm].
+        range_percent: Search range around the estimate (by default ±1%).
+        steps: Number of steps in the scanning method (by default 200).
 
-    Returns :
+    Returns:
         The optimal value of L2 [mm] that minimizes the scale inconsistency.
     """
 
     # Load and read data
     if !isfile(csv_path)
-        println("Error: File not found : $csv_path")
+        println("Error: File not found: $csv_path")
         return
     end
     data = readdlm(csv_path, ';', skipstart=1)
@@ -104,11 +104,11 @@ function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String;
     l2_optimal_direct = l2_px_mean / scale_ref
 
     println("L2 OPTIMIZATION")
-    println("Mean L1 (pixels) : $(round(l1_px_mean, digits=2))")
-    println("Mean L2 (pixels) : $(round(l2_px_mean, digits=2))")
-    println("Detected scale    : $(round(scale_ref, digits=2)) px/mm")
+    println("Mean L1 (pixels): $(round(l1_px_mean, digits=2))")
+    println("Mean L2 (pixels): $(round(l2_px_mean, digits=2))")
+    println("Detected scale:   $(round(scale_ref, digits=2)) px/mm")
     println("------------------------------------------------")
-    println("Direct suggestion  : L2 = $(round(l2_optimal_direct, digits=4)) mm")
+    println("Direct suggestion: L2 = $(round(l2_optimal_direct, digits=4)) mm")
 
     # Scanning Method (To visualize the error dip)
     l2_min = l2_guess_mm * (1 - range_percent/100)
@@ -144,15 +144,15 @@ end
 
 function simulate_double_pendulum(param1::Float64, param2::Float64, times::Vector{Float64}, param::Symbol)
     """
-    Simulates the motion of a double pendulum based on the given parameters.
+    Simulate the motion of a double pendulum based on the given parameters.
 
-    Args :
-        param1 : The first parameter to modify (mass, length, or angular velocity).
-        param2 : The second parameter to modify (mass, length, or angular velocity).
-        times : A vector of time points for the simulation.
-        param : The type of parameter to modify (:mass, :length, or :omega).
+    Args:
+        param1: The first parameter to modify (mass, length, or angular velocity).
+        param2: The second parameter to modify (mass, length, or angular velocity).
+        times: A vector of time points for the simulation.
+        param: The type of parameter to modify (:mass, :length, or :omega).
 
-    Returns :
+    Returns:
         A matrix containing the state of the double pendulum at each time step.
     """
     dp = create_real_double_pendulum()
@@ -167,7 +167,7 @@ function simulate_double_pendulum(param1::Float64, param2::Float64, times::Vecto
         dp.state[3] = param1
         dp.state[4] = param2
     else
-        println("Error: Unknown parameter type : $param")
+        println("Error: Unknown parameter type: $param")
         return
     end
 
@@ -190,11 +190,11 @@ function calculate_error(simulated_data, experimental_data)
     """
     Calculate the error between simulated and experimental data.
 
-    Args :
-        simulated_data : The simulated data from the model.
-        experimental_data : The experimental data from the CSV file.
+    Args:
+        simulated_data: The simulated data from the model.
+        experimental_data: The experimental data from the CSV file.
 
-    Returns :
+    Returns:
         A scalar error value representing the discrepancy.
     """
 
@@ -215,21 +215,21 @@ function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbo
     """
     General optimization function to find optimal parameters.
 
-    Args :
-        ref_1 : Reference value for parameter 1.
-        ref_2 : Reference value for parameter 2.
-        csv_path : Path to the CSV file containing the video data.
-        param_type : Type of parameter to optimize (:mass, :length, :omega).
-        range_percent : Search range around the reference values (by default ±5%).
-        steps : Number of steps in the scanning method (by default 200).
+    Args:
+        ref_1: Reference value for parameter 1.
+        ref_2: Reference value for parameter 2.
+        csv_path: Path to the CSV file containing the video data.
+        param_type: Type of parameter to optimize (:mass, :length, :omega).
+        range_percent: Search range around the reference values (by default ±5%).
+        steps: Number of steps in the scanning method (by default 200).
 
-    Returns :
+    Returns:
         Optimal values for the specified parameters.
     """
 
     # Load and read data
     if !isfile(csv_path)
-        println("Error: File not found : $csv_path")
+        println("Error: File not found: $csv_path")
         return
     end
     data = readdlm(csv_path, ';', skipstart=1)
@@ -270,16 +270,16 @@ end
 
 function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, range_percent=5.0, steps=200)
     """
-    Finds the optimal values of masses m1 and m2 that minimize the discrepancy between simulated and experimental data.
+    Find the optimal values of masses m1 and m2 that minimize the discrepancy between simulated and experimental data.
 
-    Args :
-        m1_ref : Reference mass 1 [kg].
-        m2_ref : Reference mass 2 [kg].
-        csv_path : Path to the CSV file containing the video data.
-        range_percent : Search range around the reference masses (by default ±5%).
-        steps : Number of steps in the scanning method (by default 200).
+    Args:
+        m1_ref: Reference mass 1 [kg].
+        m2_ref: Reference mass 2 [kg].
+        csv_path: Path to the CSV file containing the video data.
+        range_percent: Search range around the reference masses (by default ±5%).
+        steps: Number of steps in the scanning method (by default 200).
 
-    Returns :
+    Returns:
         Two tuples (m1_optimal, m2_optimal) representing the optimal masses [kg] for theta1 and theta2.
     """
 
@@ -288,16 +288,16 @@ end
 
 function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, range_percent=1.0, steps=200)
     """
-    Finds the optimal values of lengths l1 and l2 that minimize the discrepancy between simulated and experimental data.
+    Find the optimal values of lengths l1 and l2 that minimize the discrepancy between simulated and experimental data.
 
-    Args :
-        l1_ref : Reference length 1 [mm].
-        l2_ref : Reference length 2 [mm].
-        csv_path : Path to the CSV file containing the video data.
-        range_percent : Search range around the reference lengths (by default ±1%).
-        steps : Number of steps in the scanning method (by default 200).
+    Args:
+        l1_ref: Reference length 1 [mm].
+        l2_ref: Reference length 2 [mm].
+        csv_path: Path to the CSV file containing the video data.
+        range_percent: Search range around the reference lengths (by default ±1%).
+        steps: Number of steps in the scanning method (by default 200).
 
-    Returns :
+    Returns:
         Optimal lengths l1 and l2 [mm].
     """
 
@@ -306,16 +306,16 @@ end
 
 function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=5.0, steps=200)
     """
-    Finds the optimal starting angular velocities ω1 and ω2 that minimize the discrepancy between simulated and experimental data.
+    Find the optimal starting angular velocities ω1 and ω2 that minimize the discrepancy between simulated and experimental data.
 
-    Args :
-        omega1_ref : Reference angular velocity 1 [rad/s].
-        omega2_ref : Reference angular velocity 2 [rad/s].
-        csv_path : Path to the CSV file containing the video data.
-        range_percent : Search range around the reference angular velocities (by default ±5%).
-        steps : Number of steps in the scanning method (by default 200).
+    Args:
+        omega1_ref: Reference angular velocity 1 [rad/s].
+        omega2_ref: Reference angular velocity 2 [rad/s].
+        csv_path: Path to the CSV file containing the video data.
+        range_percent: Search range around the reference angular velocities (by default ±5%).
+        steps: Number of steps in the scanning method (by default 200).
 
-    Returns :
+    Returns:
         Optimal starting angular velocities ω1 and ω2 [rad/s].
     """
 
@@ -370,20 +370,20 @@ end
 
 function optimize_all(l1_ref::Float64, l2_ref::Float64, m1_ref::Float64, m2_ref::Float64, omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=1.0, steps=200)
     """
-    Finds the best lengths, masses, and starting angular velocities that minimize the discrepancy between simulated and experimental data.
+    Find the best lengths, masses, and starting angular velocities that minimize the discrepancy between simulated and experimental data.
 
-    Args :
-        l1_ref : Reference length 1 [mm].
-        l2_ref : Reference length 2 [mm].
-        m1_ref : Reference mass 1 [kg].
-        m2_ref : Reference mass 2 [kg].
-        omega1_ref : Reference angular velocity 1 [rad/s].
-        omega2_ref : Reference angular velocity 2 [rad/s].
-        csv_path : Path to the CSV file containing the video data.
-        range_percent : Search range around the reference values (default ±1%).
-        steps : Number of steps in the scanning method (default 200).
+    Args:
+        l1_ref: Reference length 1 [mm].
+        l2_ref: Reference length 2 [mm].
+        m1_ref: Reference mass 1 [kg].
+        m2_ref: Reference mass 2 [kg].
+        omega1_ref: Reference angular velocity 1 [rad/s].
+        omega2_ref: Reference angular velocity 2 [rad/s].
+        csv_path: Path to the CSV file containing the video data.
+        range_percent: Search range around the reference values (default ±1%).
+        steps: Number of steps in the scanning method (default 200).
 
-    Returns :
+    Returns:
         A result object containing the optimal lengths, masses, and angular velocities.
     """
 
