@@ -6,6 +6,10 @@ include("utils.jl")
 include("energies.jl")
 
 function mode_live()
+    """
+    Run a real-time simulation of the double pendulum, displaying its motion live.
+    """
+
     dp = create_real_double_pendulum()
 
     # Display parameters
@@ -59,6 +63,15 @@ function mode_live()
 end
 
 function mode_analysis()
+    """
+    Perform a detailed analysis simulation of the double pendulum over a fixed duration.
+
+    This function calculates and saves the temporal evolution of angles and energy stability to files.
+
+    Returns:
+        A tuple containing the simulation times and results.
+    """
+
     dp = create_real_double_pendulum()
 
     dt = 0.0001 # Time step [s]
@@ -130,6 +143,13 @@ function mode_analysis()
 end
 
 function mode_comparison()
+    """
+    Compare the simulated motion of the double pendulum with experimental data.
+
+    This function calculates initial conditions from experimental data, runs a simulation,
+        and evaluates the root mean square error (RMSE) between the simulation and experimental results.
+    """
+
     # Load data from CSV files
     data_path = "./res/video_data.csv"
     if !isfile(data_path)
@@ -271,9 +291,18 @@ end
 
 
 function main()
+    """
+    Entry point of the program, allowing to choose between different operating modes.
+
+    Modes:
+        1. Real-time simulation.
+        2. Analysis and results saving.
+        3. Comparison with experimental data.
+    """
+
     println("Choose the operating mode:")
     println("1. Real-time simulation")
-    println("2. Analysis and result saving")
+    println("2. Analysis and results saving")
     println("3. Comparison with experimental data")
     print("Enter 1, 2 or 3: ")
     choice = readline()
