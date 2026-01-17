@@ -8,13 +8,13 @@ function compare_lengths(l1_measure_mm::Float64, l2_measure_mm::Float64, csv_pat
     """
     Compares the lengths of the bars measured by hand (in mm) with those extracted from the video (in pixels).
     This function allows to:
-    1. Calculate the scale (pixels/mm) of the video.
+    1. Calculate the scale [pixels/mm] of the video.
     2. Check the stability of the tracking (the noise on the length).
     3. Detect perspective problems (if the scale calculated for L1 is different from L2).
 
     Args :
-        l1_measure_mm : Measured length of the first bar (mm).
-        l2_measure_mm : Measured length of the second bar (mm).
+        l1_measure_mm : Measured length of the first bar [mm].
+        l2_measure_mm : Measured length of the second bar [mm].
         csv_path : Path to the CSV file containing the video data.
     """
 
@@ -74,14 +74,14 @@ function compare_lengths(l1_measure_mm::Float64, l2_measure_mm::Float64, csv_pat
     savefig(final_plot, "./res/lengths_comparison_$l2_measure_mm.png")
 end
 
-function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String; range_percent=10.0, steps=200)
+function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String; range_percent=1.0, steps=200)
     """
     Finds the value of L2 that minimizes the scale inconsistency between the two bars.
 
     Args :
         l1_ref_mm : The reliable reference length (Bar 1 measured by hand) [mm].
         l2_guess_mm : An estimate of bar 2 (to center the search) [mm].
-        range_percent : Search range around the estimate (by default ±10%).
+        range_percent : Search range around the estimate (by default ±1%).
         steps : Number of steps in the scanning method (by default 200).
 
     Returns :
@@ -142,7 +142,19 @@ function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String;
     return l2_optimal_direct
 end
 
-function simulate_double_pendulum(param1::Float64, param2::Float64, times, param::Symbol)
+function simulate_double_pendulum(param1::Float64, param2::Float64, times::Vector{Float64}, param::Symbol)
+    """
+    Simulates the motion of a double pendulum based on the given parameters.
+
+    Args :
+        param1 : The first parameter to modify (mass, length, or angular velocity).
+        param2 : The second parameter to modify (mass, length, or angular velocity).
+        times : A vector of time points for the simulation.
+        param : The type of parameter to modify (:mass, :length, or :omega).
+
+    Returns :
+        A matrix containing the state of the double pendulum at each time step.
+    """
     dp = create_real_double_pendulum()
 
     if param == :mass
@@ -199,7 +211,7 @@ function calculate_error(simulated_data, experimental_data)
     return error_theta1, error_theta2
 end
 
-function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbol, range_percent=10.0, steps=200)
+function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbol, range_percent=5.0, steps=200)
     """
     General optimization function to find optimal parameters.
 
@@ -208,7 +220,7 @@ function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbo
         ref_2 : Reference value for parameter 2.
         csv_path : Path to the CSV file containing the video data.
         param_type : Type of parameter to optimize (:mass, :length, :omega).
-        range_percent : Search range around the reference values (by default ±10%).
+        range_percent : Search range around the reference values (by default ±5%).
         steps : Number of steps in the scanning method (by default 200).
 
     Returns :
@@ -256,7 +268,7 @@ function optimize(ref_1::Float64, ref_2::Float64, csv_path::String, param::Symbo
     return (optimal_theta1_1, optimal_theta1_2), (optimal_theta2_1, optimal_theta2_2), (optimal_total_1, optimal_total_2)
 end
 
-function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, range_percent=10.0, steps=200)
+function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, range_percent=5.0, steps=200)
     """
     Finds the optimal values of masses m1 and m2 that minimize the discrepancy between simulated and experimental data.
 
@@ -264,7 +276,7 @@ function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, rang
         m1_ref : Reference mass 1 [kg].
         m2_ref : Reference mass 2 [kg].
         csv_path : Path to the CSV file containing the video data.
-        range_percent : Search range around the reference masses (by default ±10%).
+        range_percent : Search range around the reference masses (by default ±5%).
         steps : Number of steps in the scanning method (by default 200).
 
     Returns :
@@ -274,7 +286,7 @@ function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, rang
     return optimize(m1_ref, m2_ref, csv_path, :mass, range_percent, steps)
 end
 
-function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, range_percent=10.0, steps=200)
+function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, range_percent=1.0, steps=200)
     """
     Finds the optimal values of lengths l1 and l2 that minimize the discrepancy between simulated and experimental data.
 
@@ -282,6 +294,8 @@ function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, rang
         l1_ref : Reference length 1 [mm].
         l2_ref : Reference length 2 [mm].
         csv_path : Path to the CSV file containing the video data.
+        range_percent : Search range around the reference lengths (by default ±1%).
+        steps : Number of steps in the scanning method (by default 200).
 
     Returns :
         Optimal lengths l1 and l2 [mm].
@@ -290,7 +304,7 @@ function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, rang
     return optimize(l1_ref, l2_ref, csv_path, :length, range_percent, steps)
 end
 
-function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=10.0, steps=200)
+function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=5.0, steps=200)
     """
     Finds the optimal starting angular velocities ω1 and ω2 that minimize the discrepancy between simulated and experimental data.
 
@@ -298,6 +312,8 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
         omega1_ref : Reference angular velocity 1 [rad/s].
         omega2_ref : Reference angular velocity 2 [rad/s].
         csv_path : Path to the CSV file containing the video data.
+        range_percent : Search range around the reference angular velocities (by default ±5%).
+        steps : Number of steps in the scanning method (by default 200).
 
     Returns :
         Optimal starting angular velocities ω1 and ω2 [rad/s].
@@ -352,25 +368,9 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
     return optimize(omega1_0, omega2_0, csv_path, :omega, range_percent, steps)
 end
 
-function find_start_angles(csv_path::String)
+function optimize_all(l1_ref::Float64, l2_ref::Float64, m1_ref::Float64, m2_ref::Float64, omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=1.0, steps=200)
     """
-    Finds the optimal starting angles θ1 and θ2 that minimize the discrepancy between simulated and experimental data.
-
-    Args :
-        csv_path : Path to the CSV file containing the video data.
-
-    Returns :
-        Optimal starting angles θ1 and θ2 [rad].
-    """
-
-    res = 0.0
-
-    return res
-end
-
-function optimize_all(l1_ref::Float64, l2_ref::Float64, m1_ref::Float64, m2_ref::Float64, omega1_ref::Float64, omega2_ref::Float64, csv_path::String)
-    """
-    Finds the best lengths, masses and start angular velocities.
+    Finds the best lengths, masses, and starting angular velocities that minimize the discrepancy between simulated and experimental data.
 
     Args :
         l1_ref : Reference length 1 [mm].
@@ -380,9 +380,11 @@ function optimize_all(l1_ref::Float64, l2_ref::Float64, m1_ref::Float64, m2_ref:
         omega1_ref : Reference angular velocity 1 [rad/s].
         omega2_ref : Reference angular velocity 2 [rad/s].
         csv_path : Path to the CSV file containing the video data.
+        range_percent : Search range around the reference values (default ±1%).
+        steps : Number of steps in the scanning method (default 200).
 
     Returns :
-        Optimal lengths and masses.
+        A result object containing the optimal lengths, masses, and angular velocities.
     """
 
     res = 0.0
@@ -398,17 +400,19 @@ end
 #
 # compare_lengths(91.74, round(l2_optimal, digits=2), "./res/video_data.csv")
 
-(m1_optimal_theta1, m2_optimal_theta1), (m1_optimal_theta2, m2_optimal_theta2), (m1_optimal_total, m2_optimal_total) = optimize_m1_m2(30.00e-3, 2.00e-3, "./res/video_data.csv")
-println("Optimal masses for θ1 fit : m1 = $(round(m1_optimal_theta1*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta1*1e3, digits=2)) g")
-println("Optimal masses for θ2 fit : m1 = $(round(m1_optimal_theta2*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta2*1e3, digits=2)) g")
-println("Optimal masses for total fit : m1 = $(round(m1_optimal_total*1e3, digits=2)) g, m2 = $(round(m2_optimal_total*1e3, digits=2)) g")
+# (m1_optimal_theta1, m2_optimal_theta1), (m1_optimal_theta2, m2_optimal_theta2), (m1_optimal_total, m2_optimal_total) = optimize_m1_m2(30.00e-3, 2.00e-3, "./res/video_data.csv")
+# println("Optimal masses for θ1 fit : m1 = $(round(m1_optimal_theta1*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta1*1e3, digits=2)) g")
+# println("Optimal masses for θ2 fit : m1 = $(round(m1_optimal_theta2*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta2*1e3, digits=2)) g")
+# println("Optimal masses for total fit : m1 = $(round(m1_optimal_total*1e3, digits=2)) g, m2 = $(round(m2_optimal_total*1e3, digits=2)) g")
+#
+# (l1_optimal_theta1, l2_optimal_theta1), (l1_optimal_theta2, l2_optimal_theta2), (l1_optimal_total, l2_optimal_total) = optimize_l1_l2(91.74, 69.33, "./res/video_data.csv")
+# println("Optimal lengths for θ1 fit : l1 = $(round(l1_optimal_theta1, digits=2)) mm, l2 = $(round(l2_optimal_theta1, digits=2)) mm")
+# println("Optimal lengths for θ2 fit : l1 = $(round(l1_optimal_theta2, digits=2)) mm, l2 = $(round(l2_optimal_theta2, digits=2)) mm")
+# println("Optimal lengths for total fit : l1 = $(round(l1_optimal_total, digits=2)) mm, l2 = $(round(l2_optimal_total, digits=2)) mm")
+#
+# (omega1_optimal_theta1, omega2_optimal_theta1), (omega1_optimal_theta2, omega2_optimal_theta2), (omega1_optimal_total, omega2_optimal_total) = optimize_omega1_omega2(0.0, 0.0, "./res/video_data.csv")
+# println("Optimal angular velocities for θ1 fit : ω1 = $(round(omega1_optimal_theta1, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta1, digits=2)) rad/s")
+# println("Optimal angular velocities for θ2 fit : ω1 = $(round(omega1_optimal_theta2, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta2, digits=2)) rad/s")
+# println("Optimal angular velocities for total fit : ω1 = $(round(omega1_optimal_total, digits=2)) rad/s, ω2 = $(round(omega2_optimal_total, digits=2)) rad/s")
 
-(l1_optimal_theta1, l2_optimal_theta1), (l1_optimal_theta2, l2_optimal_theta2), (l1_optimal_total, l2_optimal_total) = optimize_l1_l2(91.74, 69.33, "./res/video_data.csv")
-println("Optimal lengths for θ1 fit : l1 = $(round(l1_optimal_theta1, digits=2)) mm, l2 = $(round(l2_optimal_theta1, digits=2)) mm")
-println("Optimal lengths for θ2 fit : l1 = $(round(l1_optimal_theta2, digits=2)) mm, l2 = $(round(l2_optimal_theta2, digits=2)) mm")
-println("Optimal lengths for total fit : l1 = $(round(l1_optimal_total, digits=2)) mm, l2 = $(round(l2_optimal_total, digits=2)) mm")
-
-(omega1_optimal_theta1, omega2_optimal_theta1), (omega1_optimal_theta2, omega2_optimal_theta2), (omega1_optimal_total, omega2_optimal_total) = optimize_omega1_omega2(0.0, 0.0, "./res/video_data.csv")
-println("Optimal angular velocities for θ1 fit : ω1 = $(round(omega1_optimal_theta1, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta1, digits=2)) rad/s")
-println("Optimal angular velocities for θ2 fit : ω1 = $(round(omega1_optimal_theta2, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta2, digits=2)) rad/s")
-println("Optimal angular velocities for total fit : ω1 = $(round(omega1_optimal_total, digits=2)) rad/s, ω2 = $(round(omega2_optimal_total, digits=2)) rad/s")
+# l1_opt, l2_opt, m1_opt, m2_opt, w1_opt, w2_opt = optimize_all(91.74e-3, 69.33e-3, 30.00e-3, 2.00e-3, 0.0, 0.0, "./res/video_data.csv")
