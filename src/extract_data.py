@@ -39,7 +39,7 @@ def calculate_angle(p_origin, p_target):
         float: The angle in radians.
     """
     dx = p_target[0] - p_origin[0]
-    dy = p_origin[1] - p_target[1]  # Inversion Y car image
+    dy = p_origin[1] - p_target[1]  # Inverted y-axis for image coordinates
     return math.atan2(dx, -dy)
 
 
