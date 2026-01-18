@@ -176,7 +176,7 @@ function mode_analysis()
         p[1][2][:y] = [0, y1, y2]
 
         # Update title
-        title!(p, "Analysis (t = $(round(times[i], digits=0)) s)")
+        title!(p, "Analysis (t = $(round(times[i], digits=1)) s)")
     end
 
     gif(anim, "./res/analysis_animation.gif", fps=fps)
@@ -302,7 +302,7 @@ function mode_comparison()
     mask_p2 = (t_exp .> 1.0) .& (t_exp .<= 1.5)
     mask_p3 = t_exp .> 1.5
 
-    function display_rmse_segment(mask::Vector{Bool}, segment_name::String)
+    function display_rmse_segment(mask, segment_name::String)
         """
         Calculate and display the RMSE for a specific time segment.
 
@@ -332,6 +332,76 @@ function mode_comparison()
     rmse_global2 = sqrt(mean((sim_theta2_interp .- theta2_exp_unwrapped).^2))
     println("Global: θ1 = $(round(rmse_global1, digits=3)) rad, θ2 = $(round(rmse_global2, digits=3)) rad")
     println("================================")
+
+    # Generate comparative animation
+    println("Generating comparative animation")
+
+    dt_video = mean(diff(t_exp)) # Average time step from experimental data
+    fps_video = 1.0 / dt_video
+    fps = 30
+    speed_factor = fps / fps_video
+
+    L = (dp.p1.l + dp.p2.l) * 1.1 # Graphical limits
+
+    # Initialisation du graphique (4 Séries vides au départ)
+    # Série 1 : Traînée Réelle (Bleue)
+    # Série 2 : Traînée Simu (Rouge)
+    # Série 3 : Pendule Réel (Bleu épais + ronds)
+    # Série 4 : Pendule Simu (Rouge fin + ronds)
+
+    # Plot initialisation
+    p = plot([0], [0], label="", color=:blue, lw=1, alpha=0.3,
+        xlims=(-L, L), ylims=(-L, L), aspect_ratio=:equal, grid=false, axis=false)                     # Real trail
+    plot!(p, [0], [0], label="", color=:red, lw=1, alpha=0.3)                                          # Simulated trail
+    plot!(p, [0, 0, 0], [0, 0, 0], label="Experimental", color=:blue, lw=3, alpha=0.6, marker=:circle) # Real pendulum
+    plot!(p, [0, 0, 0], [0, 0, 0], label="Simulation", color=:red, lw=2, marker=:circle)               # Simulated pendulum
+
+    # Store trails
+    trail_real_x, trail_real_y = Float64[], Float64[]
+    trail_sim_x, trail_sim_y = Float64[], Float64[]
+
+    # Animation loop
+    anim = @animate for i in 1:length(t_exp)
+        print("\rRendering frame $i / $(length(t_exp))")
+
+        # Real pendulum
+        dp.state[1] = theta1_exp_unwrapped[i]
+        dp.state[2] = theta2_exp_unwrapped[i]
+        x1_exp, y1_exp, x2_exp, y2_exp = polar_to_cartesian(dp)
+
+        # Update real trail
+        push!(trail_real_x, x2_exp)
+        push!(trail_real_y, y2_exp)
+
+        # Simulated pendulum
+        t_target = t_exp[i]
+        idx_sim = argmin(abs.(sim_time .- t_target)) # Find closest simulation time index
+
+        dp.state[1] = sim_theta1[idx_sim]
+        dp.state[2] = sim_theta2[idx_sim]
+        x1_sim, y1_sim, x2_sim, y2_sim = polar_to_cartesian(dp)
+
+        # Update simulated trail
+        push!(trail_sim_x, x2_sim)
+        push!(trail_sim_y, y2_sim)
+
+        # Update plot data
+        # Update trails
+        p[1][1][:x] = trail_real_x
+        p[1][1][:y] = trail_real_y
+        p[1][2][:x] = trail_sim_x
+        p[1][2][:y] = trail_sim_y
+
+        # Update pendulums
+        p[1][3][:x] = [0, x1_exp, x2_exp]
+        p[1][3][:y] = [0, y1_exp, y2_exp]
+        p[1][4][:x] = [0, x1_sim, x2_sim]
+        p[1][4][:y] = [0, y1_sim, y2_sim]
+
+        title!(p, "Comparison (t = $(round(t_target, digits=1)) s) (x$(round(speed_factor, digits=2)))")
+    end
+
+    gif(anim, "./res/comparison_animation.gif", fps=fps)
 end
 
 
