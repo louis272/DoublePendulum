@@ -75,7 +75,7 @@ function mode_analysis()
     dp = create_real_double_pendulum()
 
     dt = 0.0001 # Time step [s]
-    t_max = 10.0 # Simulation duration [s]
+    t_max = 5.0 # Simulation duration [s]
     n_steps = Int(floor(t_max / dt))
 
     ### Store results
@@ -85,6 +85,10 @@ function mode_analysis()
     history_theta2 = zeros(n_steps)
     energies = zeros(n_steps)
 
+    # Store trajectory for animation
+    traj_x = zeros(n_steps)
+    traj_y = zeros(n_steps)
+
     println("Starting analysis simulation for $t_max seconds")
 
     for i in 1:n_steps
@@ -92,10 +96,15 @@ function mode_analysis()
 
         times[i] = (i) * dt
         results[:, i] = dp.state
-        history_theta1[i] = dp.state[1] #% (2*pi)
-        history_theta2[i] = dp.state[2] #% (2*pi)
+        history_theta1[i] = dp.state[1]
+        history_theta2[i] = dp.state[2]
 
         energies[i] = total_energy(dp)
+
+        # Store trajectory of the second mass
+        x1, y1, x2, y2 = polar_to_cartesian(dp)
+        traj_x[i] = x2
+        traj_y[i] = y2
     end
 
     println("Analysis simulation completed")
@@ -138,6 +147,41 @@ function mode_analysis()
     println("Max drift: $(max_drift)")
     println("Mean drift: $(mean_drift)")
     println("================================")
+
+    # Generate GIF animation
+    println("Generating GIF animation")
+
+    # GIF parameters
+    fps = 30                           # Frames per second for the animation
+    step = Int(round(1 / (fps * dt)))  # Step between frames
+    L = (dp.p1.l + dp.p2.l) * 1.1      # Graphical limits
+
+    p = plot([0], [0], label="", color=:red, lw=1, alpha=0.5, # Trajectory in red
+        xlims=(-L, L), ylims=(-L, L), aspect_ratio=:equal,
+        grid=false, axis=false
+    )
+    plot!(p, [0, 0, 0], [0, 0, 0], color=:black, lw=3, marker=:circle, label="") # Pendulum
+
+    anim = @animate for i in 1:step:n_steps
+        print("\rRendering frame $i / $n_steps")
+
+        # Update trajectory
+        p[1][1][:x] = traj_x[1:i]
+        p[1][1][:y] = traj_y[1:i]
+
+        # Update pendulum position
+        dp.state = results[:, i]
+        x1, y1, x2, y2 = polar_to_cartesian(dp)
+        p[1][2][:x] = [0, x1, x2]
+        p[1][2][:y] = [0, y1, y2]
+
+        # Update title
+        title!(p, "Analysis (t = $(round(times[i], digits=0)) s)")
+    end
+
+    gif_path = "./res/analysis_animation.gif"
+    gif(anim, gif_path, fps=fps)
+    println("Animation saved: $gif_path")
 
     return times, results
 end
@@ -260,8 +304,14 @@ function mode_comparison()
     mask_p2 = (t_exp .> 1.0) .& (t_exp .<= 1.5)
     mask_p3 = t_exp .> 1.5
 
-    # Local function to calculate and display the error of a segment
-    function display_segment(mask, segment_name)
+    function display_rmse_segment(mask::Vector{Bool}, segment_name::String)
+        """
+        Calculate and display the RMSE for a specific time segment.
+
+        Args:
+            mask: A boolean mask indicating the time segment to analyze.
+            segment_name: The name of the segment for display purposes.
+        """
         if count(mask) == 0
             println("$segment_name: No data")
             return
@@ -275,9 +325,9 @@ function mode_comparison()
         println("$segment_name: θ1 = $(round(err1, digits=3)) rad, θ2 = $(round(err2, digits=3)) rad")
     end
 
-    display_segment(mask_p1, "Phase 1 [0.0 - 1.0s]")
-    display_segment(mask_p2, "Phase 2 [1.0 - 1.5s]")
-    display_segment(mask_p3, "Phase 3 [> 1.5s]    ")
+    display_rmse_segment(mask_p1, "Phase 1 [0.0 - 1.0s]")
+    display_rmse_segment(mask_p2, "Phase 2 [1.0 - 1.5s]")
+    display_rmse_segment(mask_p3, "Phase 3 [> 1.5s]    ")
 
     # Total RMSE
     rmse_global1 = sqrt(mean((sim_theta1_interp .- theta1_exp_unwrapped).^2))
