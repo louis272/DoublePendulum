@@ -3,15 +3,48 @@ using Statistics
 
 include("utils.jl")
 
+function calculate_lyapunov_exponent(times, diffs)
+    """
+    Calculate the Lyapunov exponent from divergences.
+    Source: https://en.wikipedia.org/wiki/Lyapunov_exponent
+
+    Args:
+        times: Vector of time points [s]
+        diffs: Vector of absolute divergences
+
+    Returns:
+        lambda: Lyapunov exponent [1/s]
+    """
+
+    # Convert to log(d(t)/d(0))
+    log_diffs = log.(diffs ./ diffs[1])
+
+    # Ignore the first 20% of points
+    start_idx = Int(floor(length(times) * 0.2))
+    t_fit = times[start_idx:end]
+    log_fit = log_diffs[start_idx:end]
+
+    # Linear regression: log(d/d0) = λ * t
+    t_mean = mean(t_fit)
+    log_mean = mean(log_fit)
+
+    numerator = sum((t_fit .- t_mean) .* (log_fit .- log_mean))
+    denominator = sum((t_fit .- t_mean).^2)
+
+    lambda = numerator / denominator
+
+    return lambda
+end
+
 function show_chaos_demo(epsilon::Float64=1e-6, duration::Float64=10.0)
     """
     Demonstration of Chaos in a Double Pendulum.
-    Compares two nearly identical initial conditions and shows their divergence over time.
+    Compare two nearly identical initial conditions and show their divergence over time.
     """
 
     dp1 = create_real_double_pendulum()
     dp2 = create_real_double_pendulum()
-    dp2.state[2] += epsilon  # Small perturbation on theta2
+    dp2.state[2] += epsilon  # Small perturbation on theta 2
 
     dt = 0.0001                       # Time step [s]
     t_max = duration                  # Total duration [s]
@@ -43,6 +76,26 @@ function show_chaos_demo(epsilon::Float64=1e-6, duration::Float64=10.0)
         diffs_th2[i] = abs(dp1.state[2] - dp2.state[2])
     end
 
+    # Calculate Lyapunov exponents
+    lambda_th1 = calculate_lyapunov_exponent(times, diffs_th1)
+    lambda_th2 = calculate_lyapunov_exponent(times, diffs_th2)
+    lambda_avg = (lambda_th1 + lambda_th2) / 2
+
+    println("================================")
+    println("Lyapunov Exponents")
+    println("λ (theta1) = $(round(lambda_th1, digits=4)) s⁻¹")
+    println("λ (theta2) = $(round(lambda_th2, digits=4)) s⁻¹")
+    println("λ (average) = $(round(lambda_avg, digits=4)) s⁻¹")
+
+    if lambda_avg > 0
+        tau_lyapunov = 1.0 / lambda_avg
+        t_double = log(2) / lambda_avg
+        println("Lyapunov time: τ = $(round(tau_lyapunov, digits=2)) s")
+        println("Doubling time: $(round(t_double, digits=2)) s")
+    end
+    println("================================")
+
+
     ### Plots
     # Theta 1 trajectories
     p1 = plot(times, [traj1_th1, traj2_th1],
@@ -57,12 +110,22 @@ function show_chaos_demo(epsilon::Float64=1e-6, duration::Float64=10.0)
     # Theta 1 Divergence (Log)
     p3 = plot(times, diffs_th1 .+ 1e-12, yscale=:log10,
         label="|Δθ1|", color=:purple,
-        title="Divergence Log (Th1)", xlabel="Temps [s]", ylabel="Log(|Δθ|)")
+        title="Divergence Log (Th1)", xlabel="Time [s]", ylabel="Log(|Δθ|)", legend=:topleft)
+
+    # Add theoretical line e^(λt)
+    theoretical_th1 = epsilon .* exp.(lambda_th1 .* times)
+    plot!(p3, times, theoretical_th1,
+        label="Theory: ε·e^(λt)", color=:orange, linestyle=:dash, lw=2)
 
     # Theta 2 Divergence (Log)
     p4 = plot(times, diffs_th2 .+ 1e-12, yscale=:log10,
         label="|Δθ2|", color=:purple,
-        title="Divergence Log (Th2)", xlabel="Temps [s]")
+        title="Divergence Log (Th2)", xlabel="Time [s]", legend=:topleft)
+
+    # Add theoretical line
+    theoretical_th2 = epsilon .* exp.(lambda_th2 .* times)
+    plot!(p4, times, theoretical_th2,
+        label="Theory: ε·e^(λt)", color=:orange, linestyle=:dash, lw=2)
 
     # Combine plots
     final_plot = plot(p1, p2, p3, p4, layout=(2, 2), size=(1000, 800))
