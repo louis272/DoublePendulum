@@ -378,27 +378,74 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
     return optimize(omega1_0, omega2_0, csv_path, :omega, range_percent, steps)
 end
 
+function run_optimization_suite(l1_ref_mm::Float64 = 91.74, l2_ref_mm::Float64 = 69.33,
+    m1_ref_kg::Float64 = 30.00e-3, m2_ref_kg::Float64 = 2.00e-3,
+    omega1_ref::Float64 = 0.0, omega2_ref::Float64 = 0.0,
+    csv_path::String = "./res/video_data.csv")
+    """
+    Run a suite of analyses and optimizations on the pendulum parameters.
 
-# compare_lengths(91.74, 69.33, "./res/video_data.csv")
-#
-# l2_optimal = optimize_l2(91.74, 69.33, "./res/video_data.csv")
-# println("Value retained for simulation : L2 = $(round(l2_optimal, digits=2))")
-#
-# compare_lengths(91.74, round(l2_optimal, digits=2), "./res/video_data.csv")
+    Args:
+        l1_ref_mm: Reference length of bar 1 [mm].
+        l2_ref_mm: Reference length of bar 2 [mm].
+        m1_ref_kg: Reference mass 1 [kg].
+        m2_ref_kg: Reference mass 2 [kg].
+        omega1_ref: Reference initial angular velocity 1 [rad/s].
+        omega2_ref: Reference initial angular velocity 2 [rad/s].
+        csv_path: Path to the CSV file containing the video data.
 
-# (m1_optimal_theta1, m2_optimal_theta1), (m1_optimal_theta2, m2_optimal_theta2), (m1_optimal_total, m2_optimal_total) = optimize_m1_m2(30.00e-3, 2.00e-3, "./res/video_data.csv")
-# println("Optimal masses for θ1 fit : m1 = $(round(m1_optimal_theta1*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta1*1e3, digits=2)) g")
-# println("Optimal masses for θ2 fit : m1 = $(round(m1_optimal_theta2*1e3, digits=2)) g, m2 = $(round(m2_optimal_theta2*1e3, digits=2)) g")
-# println("Optimal masses for total fit : m1 = $(round(m1_optimal_total*1e3, digits=2)) g, m2 = $(round(m2_optimal_total*1e3, digits=2)) g")
-#
-# (l1_optimal_theta1, l2_optimal_theta1), (l1_optimal_theta2, l2_optimal_theta2), (l1_optimal_total, l2_optimal_total) = optimize_l1_l2(91.74, 69.33, "./res/video_data.csv")
-# println("Optimal lengths for θ1 fit : l1 = $(round(l1_optimal_theta1, digits=2)) mm, l2 = $(round(l2_optimal_theta1, digits=2)) mm")
-# println("Optimal lengths for θ2 fit : l1 = $(round(l1_optimal_theta2, digits=2)) mm, l2 = $(round(l2_optimal_theta2, digits=2)) mm")
-# println("Optimal lengths for total fit : l1 = $(round(l1_optimal_total, digits=2)) mm, l2 = $(round(l2_optimal_total, digits=2)) mm")
-#
-# (omega1_optimal_theta1, omega2_optimal_theta1), (omega1_optimal_theta2, omega2_optimal_theta2), (omega1_optimal_total, omega2_optimal_total) = optimize_omega1_omega2(0.0, 0.0, "./res/video_data.csv")
-# println("Optimal angular velocities for θ1 fit : ω1 = $(round(omega1_optimal_theta1, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta1, digits=2)) rad/s")
-# println("Optimal angular velocities for θ2 fit : ω1 = $(round(omega1_optimal_theta2, digits=2)) rad/s, ω2 = $(round(omega2_optimal_theta2, digits=2)) rad/s")
-# println("Optimal angular velocities for total fit : ω1 = $(round(omega1_optimal_total, digits=2)) rad/s, ω2 = $(round(omega2_optimal_total, digits=2)) rad/s")
+    Returns:
+        A tuple containing the optimal masses, lengths, and angular velocities.
+    """
 
-# l1_opt, l2_opt, m1_opt, m2_opt, w1_opt, w2_opt = optimize_all(91.74e-3, 69.33e-3, 30.00e-3, 2.00e-3, 0.0, 0.0, "./res/video_data.csv")
+    println("================================")
+    println("Optimization for Double Pendulum")
+
+    ### Lengths
+    println("Calibration of Lengths")
+    # Comparaison initiale
+    compare_lengths(l1_ref_mm, l2_ref_mm, csv_path)
+
+    # Recherche de la valeur optimale pour L2
+    l2_optimal = optimize_l2(l1_ref_mm, l2_ref_mm, csv_path)
+    println("  Value for simulation: L2 = $(round(l2_optimal, digits=2)) mm")
+
+    # Vérification avec la nouvelle valeur
+    println("  Verification of the calibration with optimized L2:")
+    compare_lengths(l1_ref_mm, (round(l2_optimal, digits=2)), csv_path)
+
+    ### Masses
+    println("Optimization of Masses (m1, m2)")
+    (m1_th1, m2_th1), (m1_th2, m2_th2), (m1_tot, m2_tot) = optimize_m1_m2(m1_ref_kg, m2_ref_kg, csv_path)
+
+    println("Results Masses:")
+    println("  For θ1 fit: m1 = $(round(m1_th1*1e3, digits=2)) g, m2 = $(round(m2_th1*1e3, digits=2)) g")
+    println("  For θ2 fit: m1 = $(round(m1_th2*1e3, digits=2)) g, m2 = $(round(m2_th2*1e3, digits=2)) g")
+    println("  Global: m1 = $(round(m1_tot*1e3, digits=2)) g, m2 = $(round(m2_tot*1e3, digits=2)) g")
+
+    ### Lengths
+    println("Optimization of Lengths (l1, l2)")
+    (l1_th1, l2_th1), (l1_th2, l2_th2), (l1_tot, l2_tot) = optimize_l1_l2(l1_ref_mm, l2_ref_mm, csv_path)
+
+    println("Results Lengths:")
+    println("  For θ1 fit: l1 = $(round(l1_th1, digits=2)) mm, l2 = $(round(l2_th1, digits=2)) mm")
+    println("  For θ2 fit: l1 = $(round(l1_th2, digits=2)) mm, l2 = $(round(l2_th2, digits=2)) mm")
+    println("  Global: l1 = $(round(l1_tot, digits=2)) mm, l2 = $(round(l2_tot, digits=2)) mm")
+
+
+    ### Angular Velocities
+    println("Optimization of Initial Angular Velocities (ω1, ω2)")
+    (w1_th1, w2_th1), (w1_th2, w2_th2), (w1_tot, w2_tot) = optimize_omega1_omega2(0.0, 0.0, csv_path)
+
+    println("Results Angular Velocities :")
+    println("  For θ1 fit: ω1 = $(round(w1_th1, digits=2)) rad/s, ω2 = $(round(w2_th1, digits=2)) rad/s")
+    println("  For θ2 fit: ω1 = $(round(w1_th2, digits=2)) rad/s, ω2 = $(round(w2_th2, digits=2)) rad/s")
+    println("  Global: ω1 = $(round(w1_tot, digits=2)) rad/s, ω2 = $(round(w2_tot, digits=2)) rad/s")
+
+    println("================================")
+
+    return (m1_tot, m2_tot), (l1_tot, l2_tot), (w1_tot, w2_tot)
+end
+
+
+run_optimization_suite()
