@@ -171,15 +171,25 @@ function simulate_double_pendulum(param1::Float64, param2::Float64, times::Vecto
         return
     end
 
-    t_max = 2.0 # Simulation duration [s]
     n_steps = length(times)
 
     ### Store results
     results = zeros(4, n_steps)
+    results[:, 1] = dp.state  # Initial state
 
-    for i in 1:n_steps
-        dt = times[i] - (i > 1 ? times[i-1] : 0.0) # Time step [s]
-        rk4_step!(dp, dt)
+    for i in 2:n_steps
+        dt_frame = times[i] - times[i-1] # Time step between frames [s]
+
+        if dt_frame > 0
+            dt_wanted = 0.0001 # Wanted time step [s]
+            n_substeps = Int(ceil(dt_frame / dt_wanted)) # Number of sub-steps
+            dt = dt_frame / n_substeps # Actual time step [s]
+
+            for _ in 1:n_substeps
+                rk4_step!(dp, dt)
+            end
+        end
+
         results[:, i] = dp.state  # [theta1_0, theta2_0, omega1_0, omega2_0] -> one column per time step
     end
 
@@ -366,30 +376,6 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
     omega2_0 = omega2_sum / N
 
     return optimize(omega1_0, omega2_0, csv_path, :omega, range_percent, steps)
-end
-
-function optimize_all(l1_ref::Float64, l2_ref::Float64, m1_ref::Float64, m2_ref::Float64, omega1_ref::Float64, omega2_ref::Float64, csv_path::String, range_percent=1.0, steps=200)
-    """
-    Find the best lengths, masses, and starting angular velocities that minimize the discrepancy between simulated and experimental data.
-
-    Args:
-        l1_ref: Reference length 1 [mm].
-        l2_ref: Reference length 2 [mm].
-        m1_ref: Reference mass 1 [kg].
-        m2_ref: Reference mass 2 [kg].
-        omega1_ref: Reference angular velocity 1 [rad/s].
-        omega2_ref: Reference angular velocity 2 [rad/s].
-        csv_path: Path to the CSV file containing the video data.
-        range_percent: Search range around the reference values (default ±1%).
-        steps: Number of steps in the scanning method (default 200).
-
-    Returns:
-        A result object containing the optimal lengths, masses, and angular velocities.
-    """
-
-    res = 0.0
-
-    return res
 end
 
 
