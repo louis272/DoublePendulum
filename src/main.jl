@@ -188,17 +188,14 @@ function mode_comparison()
     # Angular velocity 2 (average of derivatives) [rad/s]
     omega2_0 = estimate_initial_angular_velocity(t_exp, theta2_exp_unwrapped, N)
 
-    println("================================")
-    println("Initial Conditions")
-    println("θ1(0) = $(round(theta1_0, digits=3)) rad = $(round(rad2deg(theta1_0), digits=1))°")
-    println("θ2(0) = $(round(theta2_0, digits=3)) rad = $(round(rad2deg(theta2_0), digits=1))°")
-    println("ω1(0) = $(round(omega1_0, digits=3)) rad/s")
-    println("ω2(0) = $(round(omega2_0, digits=3)) rad/s")
-    println("================================")
-
     initial_state = [theta1_0, theta2_0, omega1_0, omega2_0]
     dp = create_real_double_pendulum()
     dp.state = initial_state
+
+    println("================================")
+    println("Initial Conditions")
+    display_dp_info(dp)
+    println("================================")
 
     # Simulation
     dt = 0.0001 # Time step [s]

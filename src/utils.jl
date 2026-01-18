@@ -166,3 +166,26 @@ function estimate_initial_angular_velocity(times::Vector{Float64}, angles::Vecto
 
     return omega_sum / N
 end
+
+function display_dp_info(dp::DoublePendulum)
+    """
+    Display the information of a DoublePendulum object.
+
+    Args:
+        dp: The DoublePendulum object.
+
+    Returns:
+        Nothing. Prints the information to the console.
+    """
+
+    println("Double Pendulum Information:")
+    println("Mass 1 = $(dp.p1.m) kg")
+    println("Mass 2 = $(dp.p2.m) kg")
+    println("Length 1 = $(dp.p1.l) m")
+    println("Length 2 = $(dp.p2.l) m")
+    println("Gravity = $(dp.g) m/s²")
+    println("θ1 = $(round(dp.state[1], digits=3)) rad")
+    println("θ2 = $(round(dp.state[2], digits=3)) rad")
+    println("ω1 = $(round(dp.state[3], digits=3)) rad/s")
+    println("ω2 = $(round(dp.state[4], digits=3)) rad/s")
+end
