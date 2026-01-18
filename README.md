@@ -65,6 +65,10 @@ DoublePendulum/
 ### Chaos Demonstration
 To demonstrate chaos, run the `src/demonstration_chaos.jl` file. This will generate plots illustrating the divergence of two nearly identical initial conditions.
 
+### Optimization
+To optimize the simulation parameters, you can use the `src/comparison.jl` script. 
+It compares the simulation results with experimental data and adjusts parameters to minimize discrepancies.
+
 ### Outputs
 - Simulation results and plots are saved in the `res/` directory.
 - Example outputs include:
