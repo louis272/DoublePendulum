@@ -179,9 +179,7 @@ function mode_analysis()
         title!(p, "Analysis (t = $(round(times[i], digits=0)) s)")
     end
 
-    gif_path = "./res/analysis_animation.gif"
-    gif(anim, gif_path, fps=fps)
-    println("Animation saved: $gif_path")
+    gif(anim, "./res/analysis_animation.gif", fps=fps)
 
     return times, results
 end
