@@ -12,21 +12,24 @@ This is a simulation and analysis project focused on the dynamics of a double pe
 ## Project Structure
 ```
 DoublePendulum/
-├── res/                        
-├── src/                        
-│   ├── main.jl                 
-│   ├── utils.jl                
-│   ├── energies.jl             
-│   ├── comparison.jl           
-│   ├── demonstration_chaos.jl  
-│   ├── system.jl               
-│   ├── analytique.md           
-│   └── extract_data.py         
-├── test/                       
+├── res/
+├── src/
+│   ├── main.jl
+│   ├── utils.jl
+│   ├── energies.jl
+│   ├── comparison.jl
+│   ├── demonstration_chaos.jl
+│   ├── system.jl
+│   └── extract_data.py
+├── test/
 │   ├── test_energies.jl
 │   ├── test_system.jl
 │   └── test_utils.jl
-└── README.md           
+├── theory/
+│   ├── analytique.md
+│   ├── schema_double_pendulum.jpeg
+│   └── schema_dp_forces.jpeg
+└── README.md
 ```
 
 ## Getting Started
@@ -78,5 +81,5 @@ It compares the simulation results with experimental data and adjusts parameters
   - `demonstration_chaos.png`: Chaos demonstration plots.
 
 ## Analytical Part
-For the analytical part of the project, refer to the `src/analytique.md` file.
+For the analytical part of the project, refer to the `theory/analytique.md` file.
 It contains detailed derivations and explanations of the equations governing the double pendulum system.
