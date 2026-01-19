@@ -77,3 +77,6 @@ It compares the simulation results with experimental data and adjusts parameters
   - `comparison_reality_simulation_wrapped.png`: Comparison of wrapped angles.
   - `demonstration_chaos.png`: Chaos demonstration plots.
 
+## Analytical Part
+For the analytical part of the project, refer to the `src/analytique.md` file.
+It contains detailed derivations and explanations of the equations governing the double pendulum system.
