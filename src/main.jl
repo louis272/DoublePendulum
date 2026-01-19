@@ -206,8 +206,8 @@ function mode_comparison()
     theta2_exp = data[:, 3]  # Theta 2 from experiment [rad]
 
     # Unwrap experimental angles
-    theta1_exp_unwrapped = zeros(length(theta1_exp))  # Unwrapped theta 1 [rad]
-    theta2_exp_unwrapped = zeros(length(theta2_exp))  # Unwrapped theta 2 [rad]
+    theta1_exp_unwrapped = zeros(length(theta1_exp))  # To store unwrapped theta 1 [rad]
+    theta2_exp_unwrapped = zeros(length(theta2_exp))  # To store unwrapped theta 2 [rad]
     theta1_exp_unwrapped[1] = theta1_exp[1]           # Initialize first value
     theta2_exp_unwrapped[1] = theta2_exp[1]           # Initialize first value
 

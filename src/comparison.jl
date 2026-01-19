@@ -27,7 +27,7 @@ function compare_lengths(l1_measure_mm::Float64, l2_measure_mm::Float64, csv_pat
     # Read CSV file
     data = readdlm(csv_path, ';', skipstart=1)
 
-    time = data[:, 1]
+    time = data[:, 1]  # Time in seconds
     l1_px = data[:, 4] # Length L1 in pixels
     l2_px = data[:, 5] # Length L2 in pixels
 
@@ -99,15 +99,14 @@ function optimize_l2(l1_ref_mm::Float64, l2_guess_mm::Float64, csv_path::String;
     l2_px_mean = mean(data[:, 5])
 
     # Direct Calculation
-    # If Scale = l1_px / l1_mm, then l2_mm = l2_px / Scale
+    # If scale = l1_px / l1_mm, then l2_mm = l2_px / scale
     scale_ref = l1_px_mean / l1_ref_mm
     l2_optimal_direct = l2_px_mean / scale_ref
 
-    println("L2 OPTIMIZATION")
+    println("L2 Optimization")
     println("Mean L1 (pixels): $(round(l1_px_mean, digits=2))")
     println("Mean L2 (pixels): $(round(l2_px_mean, digits=2))")
     println("Detected scale:   $(round(scale_ref, digits=2)) px/mm")
-    println("------------------------------------------------")
     println("Direct suggestion: L2 = $(round(l2_optimal_direct, digits=4)) mm")
 
     # Scanning Method (To visualize the error dip)
@@ -174,16 +173,16 @@ function simulate_double_pendulum(param1::Float64, param2::Float64, times::Vecto
     n_steps = length(times)
 
     ### Store results
-    results = zeros(4, n_steps)
-    results[:, 1] = dp.state  # Initial state
+    results = zeros(4, n_steps)  # To store [theta1, theta2, omega1, omega2] at each time step
+    results[:, 1] = dp.state     # Initial state
 
     for i in 2:n_steps
         dt_frame = times[i] - times[i-1] # Time step between frames [s]
 
         if dt_frame > 0
-            dt_wanted = 0.0001 # Wanted time step [s]
-            n_substeps = Int(ceil(dt_frame / dt_wanted)) # Number of sub-steps
-            dt = dt_frame / n_substeps # Actual time step [s]
+            dt_wanted = 0.0001                            # Wanted time step [s]
+            n_substeps = Int(ceil(dt_frame / dt_wanted))  # Number of sub-steps
+            dt = dt_frame / n_substeps                    # Actual time step [s]
 
             for _ in 1:n_substeps
                 rk4_step!(dp, dt)
@@ -290,7 +289,7 @@ function optimize_m1_m2(m1_ref::Float64, m2_ref::Float64, csv_path::String, rang
         steps: Number of steps in the scanning method (by default 200).
 
     Returns:
-        Two tuples (m1_optimal, m2_optimal) representing the optimal masses [kg] for theta1 and theta2.
+        Three tuples (m1_optimal, m2_optimal) representing the optimal masses [kg] for theta1, theta2, and total error minimization.
     """
 
     return optimize(m1_ref, m2_ref, csv_path, :mass, range_percent, steps)
@@ -308,7 +307,7 @@ function optimize_l1_l2(l1_ref::Float64, l2_ref::Float64, csv_path::String, rang
         steps: Number of steps in the scanning method (by default 200).
 
     Returns:
-        Optimal lengths l1 and l2 [mm].
+        Three tuples (l1_optimal, l2_optimal) representing the optimal lengths [mm] for theta1, theta2, and total error minimization.
     """
 
     return optimize(l1_ref, l2_ref, csv_path, :length, range_percent, steps)
@@ -326,7 +325,7 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
         steps: Number of steps in the scanning method (by default 200).
 
     Returns:
-        Optimal starting angular velocities ω1 and ω2 [rad/s].
+        Three tuples (omega1_optimal, omega2_optimal) representing the optimal angular velocities [rad/s] for theta1, theta2, and total error minimization.
     """
 
     # Load data from CSV files
@@ -339,16 +338,17 @@ function optimize_omega1_omega2(omega1_ref::Float64, omega2_ref::Float64, csv_pa
     # Read the CSV file
     data = readdlm(data_path, ';', skipstart=1)
 
-    t_exp = data[:, 1]       # Time from experiment
-    theta1_exp = data[:, 2]  # Theta 1 from experiment
-    theta2_exp = data[:, 3]  # Theta 2 from experiment
+    t_exp = data[:, 1]       # Time from experiment [s]
+    theta1_exp = data[:, 2]  # Theta 1 from experiment [rad]
+    theta2_exp = data[:, 3]  # Theta 2 from experiment [rad]
 
     # Unwrap experimental angles
-    theta1_exp_unwrapped = zeros(length(theta1_exp))
-    theta2_exp_unwrapped = zeros(length(theta2_exp))
-    theta1_exp_unwrapped[1] = theta1_exp[1]
-    theta2_exp_unwrapped[1] = theta2_exp[1]
+    theta1_exp_unwrapped = zeros(length(theta1_exp))  # To store unwrapped theta 1 [rad]
+    theta2_exp_unwrapped = zeros(length(theta2_exp))  # To store unwrapped theta 2 [rad]
+    theta1_exp_unwrapped[1] = theta1_exp[1]           # Initialize first value
+    theta2_exp_unwrapped[1] = theta2_exp[1]           # Initialize first value
 
+    # Unwrapping process
     for i in 2:length(t_exp)
         theta1_exp_unwrapped[i] = unwrap_angle(theta1_exp[i], theta1_exp_unwrapped[i-1])
         theta2_exp_unwrapped[i] = unwrap_angle(theta2_exp[i], theta2_exp_unwrapped[i-1])
@@ -395,7 +395,7 @@ function run_optimization_suite(l1_ref_mm::Float64 = 91.74, l2_ref_mm::Float64 =
         csv_path: Path to the CSV file containing the video data.
 
     Returns:
-        A tuple containing the optimal masses, lengths, and angular velocities.
+        Three tuples containing the optimal masses, lengths, and angular velocities.
     """
 
     println("================================")
@@ -403,14 +403,14 @@ function run_optimization_suite(l1_ref_mm::Float64 = 91.74, l2_ref_mm::Float64 =
 
     ### Lengths
     println("Calibration of Lengths")
-    # Comparaison initiale
+    # Initial comparison with reference lengths
     compare_lengths(l1_ref_mm, l2_ref_mm, csv_path)
 
-    # Recherche de la valeur optimale pour L2
+    # Optimization of L2
     l2_optimal = optimize_l2(l1_ref_mm, l2_ref_mm, csv_path)
     println("  Value for simulation: L2 = $(round(l2_optimal, digits=2)) mm")
 
-    # Vérification avec la nouvelle valeur
+    # Final comparison with optimized L2
     println("  Verification of the calibration with optimized L2:")
     compare_lengths(l1_ref_mm, (round(l2_optimal, digits=2)), csv_path)
 
