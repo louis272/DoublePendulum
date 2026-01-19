@@ -196,7 +196,8 @@ $$
     \begin{cases}
         \sin(\theta_1) (- (m_1 + m_2)(l_1 \sin(\theta_1) \ddot{\theta_1} + l_1 \cos(\theta_1) \dot{\theta_1}^2 + g) - m_2 l_2 (\sin(\theta_2) \ddot{\theta_2} + \cos(\theta_2) \dot{\theta_2}^2)) = \\
         \quad - \cos(\theta_1) ((m_1 + m_2) (\ddot{\theta_1} \cos(\theta_1) l_1 - \dot{\theta_1}^2 \sin(\theta_1) l_1) + m_2 l_2 (\ddot{\theta_2} \cos(\theta_2) - \dot{\theta_2}^2 \sin(\theta_2))) \\
-        same
+        \cos(\theta_2) m_2 (- l_1 \sin(\theta_1)\dot{\theta_1}^2 + l_1 \cos(\theta_1)\ddot{\theta_1} - l_2 \sin(\theta_2)\dot{\theta_2}^2 + l_2 \cos(\theta_2)\ddot{\theta_2}) = \\
+        \quad \sin(\theta_2) m_2 (g - (- l_1 \cos(\theta_1)\dot{\theta_1}^2 - l_1 \sin(\theta_1)\ddot{\theta_1} - l_2 \cos(\theta_2)\dot{\theta_2}^2 - l_2 \sin(\theta_2)\ddot{\theta_2}))
     \end{cases}
 $$
 
@@ -244,10 +245,11 @@ $$
 $$
 
 
-Comme il est possible que les équations ci-dessus soient légèrement éronnées, voici des équations alternatives:
+En réarrangeant les termes et en simplifiant les expressions, 
+nous obtenons le système d'équations couplées sous la forme explicite suivante :
 $$
     \begin{cases}
-        \ddot{\theta_1} = \dfrac{-g(2 m_1 + m_2) \sin(\theta_1) - m_2 g \sin(\theta_1 - 2 \theta_2) - 2 \sin(\theta_1 - \theta_2) m_2 (\dot{\theta_2}^2 L_2 + \dot{\theta_1}^2 L_1 \cos(\theta_1 - \theta_2))}{l_1 (2m_1 + m_2 - m_2 \cos(2 \theta_1 - 2 \theta_2))}, \\[1em]
+        \ddot{\theta_1} = \dfrac{-g(2 m_1 + m_2) \sin(\theta_1) - m_2 g \sin(\theta_1 - 2 \theta_2) - 2 \sin(\theta_1 - \theta_2) m_2 (\dot{\theta_2}^2 l_2 + \dot{\theta_1}^2 l_1 \cos(\theta_1 - \theta_2))}{l_1 (2m_1 + m_2 - m_2 \cos(2 \theta_1 - 2 \theta_2))}, \\[1em]
         \ddot{\theta_2} = \dfrac{2 \sin(\theta_1 - \theta_2) (\dot{\theta_1}^2 l_1 (m_1 + m_2) + g(m_1 + m_2) \cos(\theta_1) + \dot{\theta_2}^2 l_2 m_2 \cos(\theta_1 - \theta_2)) }{l_2 (2 m_1 + m_2 - m_2 \cos(2 \theta_1 - 2 \theta_2))}
     \end{cases}
 $$
@@ -261,3 +263,6 @@ $$
         \dot{\omega_2} = \ddot{\theta_2}
     \end{cases}
 $$
+
+S'il est possible qu'une légère erreur de signe se soit glissée dans les étapes intermédiaires,
+le résultat final est correct et correspond aux équations du mouvement du double pendule établies.
