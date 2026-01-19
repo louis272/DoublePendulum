@@ -12,13 +12,13 @@ function mode_live()
 
     dp = create_real_double_pendulum()
 
-    # Display parameters
-    dt = 0.0005          # Calculation step [s]
-    steps_per_frame = 40 # Perform 40 calculations before drawing a frame
-    L = (dp.p1.l + dp.p2.l) * 1.1 # Graphical limits
+    # Parameters
+    dt = 0.0005                    # Calculation step [s]
+    steps_per_frame = 40           # Perform 40 calculations before drawing a frame
+    L = (dp.p1.l + dp.p2.l) * 1.1  # Graphical limits
 
-    dt_render = steps_per_frame * dt  # Physical time per frame
-    sim_time = 0.0 # Total simulation time [s]
+    dt_render = steps_per_frame * dt  # Physical time per frame [s]
+    sim_time = 0.0                    # Total simulation time [s]
 
     println("Starting live simulation (CTRL+C to stop)")
     try
@@ -44,14 +44,14 @@ function mode_live()
             )
 
             time_str = "t = $(round(sim_time, digits=2)) s"
-            #annotate!(p, -L*0.8, L*0.9, text(time_str, :blue, 12, :left))
+            #annotate!(p, -L*0.8, L*0.9, text(time_str, :blue, 12, :left))  # Decomment to show time on plot
 
             display(p)
 
             elapsed_time = time() - start_time
             sleep_duration = max(0.0, dt_render - elapsed_time)
 
-            sleep(sleep_duration)
+            sleep(sleep_duration)  # Control frame rate
         end
     catch e
         if isa(e, InterruptException)
@@ -74,16 +74,16 @@ function mode_analysis()
 
     dp = create_real_double_pendulum()
 
-    dt = 0.0001 # Time step [s]
-    t_max = 5.0 # Simulation duration [s]
-    n_steps = Int(floor(t_max / dt))
+    dt = 0.0001                       # Time step [s]
+    t_max = 5.0                       # Simulation duration [s]
+    n_steps = Int(floor(t_max / dt))  # Number of steps
 
     ### Store results
-    times = zeros(n_steps)
-    results = zeros(4, n_steps)
-    history_theta1 = zeros(n_steps)
-    history_theta2 = zeros(n_steps)
-    energies = zeros(n_steps)
+    times = zeros(n_steps)           # To store time values [s]
+    results = zeros(4, n_steps)      # To store [theta1, theta2, omega1, omega2] over time
+    history_theta1 = zeros(n_steps)  # To store theta 1 over time [rad]
+    history_theta2 = zeros(n_steps)  # To store theta 2 over time [rad]
+    energies = zeros(n_steps)        # To store total energy over time [J]
 
     # Store trajectory for animation
     traj_x = zeros(n_steps)
@@ -120,9 +120,8 @@ function mode_analysis()
     e0 = energies[1]
     energy_deviation = (energies .- e0) ./ abs(e0)
 
-    # Columns: Time | Energy [J] | Relative Error
     data_to_save = [times energies energy_deviation]
-    header = ["time_s" "energy_joules" "relative_error"]
+    header = ["time_s" "energy_joules" "relative_error"]  # Columns: Time | Energy [J] | Relative Error
 
     open("./res/energy_stability.csv", "w") do io
         writedlm(io, header, ',')
@@ -148,7 +147,7 @@ function mode_analysis()
     println("Mean drift: $(mean_drift)")
     println("================================")
 
-    # Generate GIF animation
+    ### Generate GIF animation
     println("Generating GIF animation")
 
     # GIF parameters
@@ -202,24 +201,25 @@ function mode_comparison()
     # Read the CSV file
     data = readdlm(data_path, ';', skipstart=1)
 
-    t_exp = data[:, 1]       # Time from experiment
-    theta1_exp = data[:, 2]  # Theta 1 from experiment
-    theta2_exp = data[:, 3]  # Theta 2 from experiment
+    t_exp = data[:, 1]       # Time from experiment [s]
+    theta1_exp = data[:, 2]  # Theta 1 from experiment [rad]
+    theta2_exp = data[:, 3]  # Theta 2 from experiment [rad]
 
     # Unwrap experimental angles
-    theta1_exp_unwrapped = zeros(length(theta1_exp))
-    theta2_exp_unwrapped = zeros(length(theta2_exp))
-    theta1_exp_unwrapped[1] = theta1_exp[1]
-    theta2_exp_unwrapped[1] = theta2_exp[1]
+    theta1_exp_unwrapped = zeros(length(theta1_exp))  # Unwrapped theta 1 [rad]
+    theta2_exp_unwrapped = zeros(length(theta2_exp))  # Unwrapped theta 2 [rad]
+    theta1_exp_unwrapped[1] = theta1_exp[1]           # Initialize first value
+    theta2_exp_unwrapped[1] = theta2_exp[1]           # Initialize first value
 
+    # Unwrapping process
     for i in 2:length(t_exp)
         theta1_exp_unwrapped[i] = unwrap_angle(theta1_exp[i], theta1_exp_unwrapped[i-1])
         theta2_exp_unwrapped[i] = unwrap_angle(theta2_exp[i], theta2_exp_unwrapped[i-1])
     end
 
-    # Initialize the simulation
-    theta1_0 = theta1_exp_unwrapped[1] # Initial angle theta 1 [rad]
-    theta2_0 = theta2_exp_unwrapped[1] # Initial angle theta 2 [rad]
+    ### Initialize the simulation
+    theta1_0 = theta1_exp_unwrapped[1]  # Initial angle theta 1 [rad]
+    theta2_0 = theta2_exp_unwrapped[1]  # Initial angle theta 2 [rad]
 
     # Calculate initial angular velocities by averaging over N points
     N = min(10, length(t_exp) - 1)  # Use 10 points or fewer if not enough data
@@ -239,14 +239,14 @@ function mode_comparison()
     display_dp_info(dp)
     println("================================")
 
-    # Simulation
-    dt = 0.0001 # Time step [s]
-    t_max = maximum(t_exp) # Simulation duration [s]
-    n_steps = Int(floor(t_max / dt))
+    ### Simulation
+    dt = 0.0001                       # Time step [s]
+    t_max = maximum(t_exp)            # Simulation duration [s]
+    n_steps = Int(floor(t_max / dt))  # Number of steps
 
-    sim_time = zeros(n_steps)
-    sim_theta1 = zeros(n_steps)
-    sim_theta2 = zeros(n_steps)
+    sim_time = zeros(n_steps)    # To store simulation time [s]
+    sim_theta1 = zeros(n_steps)  # To store simulated theta 1 [rad]
+    sim_theta2 = zeros(n_steps)  # To store simulated theta 2 [rad]
 
     for i in 1:n_steps
         rk4_step!(dp, dt)
@@ -333,21 +333,15 @@ function mode_comparison()
     println("Global: θ1 = $(round(rmse_global1, digits=3)) rad, θ2 = $(round(rmse_global2, digits=3)) rad")
     println("================================")
 
-    # Generate comparative animation
+    ### Generate comparative animation
     println("Generating comparative animation")
 
-    dt_video = mean(diff(t_exp)) # Average time step from experimental data
-    fps_video = 1.0 / dt_video
-    fps = 30
-    speed_factor = fps / fps_video
+    dt_video = mean(diff(t_exp))    # Average time step from experimental data [s]
+    fps_video = 1.0 / dt_video      # Frames per second in the video
+    fps = 30                        # Desired frames per second for the animation
+    speed_factor = fps / fps_video  # Speed adjustment factor
 
-    L = (dp.p1.l + dp.p2.l) * 1.1 # Graphical limits
-
-    # Initialisation du graphique (4 Séries vides au départ)
-    # Série 1 : Traînée Réelle (Bleue)
-    # Série 2 : Traînée Simu (Rouge)
-    # Série 3 : Pendule Réel (Bleu épais + ronds)
-    # Série 4 : Pendule Simu (Rouge fin + ronds)
+    L = (dp.p1.l + dp.p2.l) * 1.1   # Graphical limits
 
     # Plot initialisation
     p = plot([0], [0], label="", color=:blue, lw=1, alpha=0.3,
@@ -364,7 +358,7 @@ function mode_comparison()
     anim = @animate for i in 1:length(t_exp)
         print("\rRendering frame $i / $(length(t_exp))")
 
-        # Real pendulum
+        # Update real pendulum
         dp.state[1] = theta1_exp_unwrapped[i]
         dp.state[2] = theta2_exp_unwrapped[i]
         x1_exp, y1_exp, x2_exp, y2_exp = polar_to_cartesian(dp)
@@ -373,7 +367,7 @@ function mode_comparison()
         push!(trail_real_x, x2_exp)
         push!(trail_real_y, y2_exp)
 
-        # Simulated pendulum
+        # Update simulated pendulum
         t_target = t_exp[i]
         idx_sim = argmin(abs.(sim_time .- t_target)) # Find closest simulation time index
 

@@ -40,25 +40,29 @@ function show_chaos_demo(epsilon::Float64=1e-6, duration::Float64=10.0)
     """
     Demonstration of Chaos in a Double Pendulum.
     Compare two nearly identical initial conditions and show their divergence over time.
+
+    Args:
+        epsilon: Small perturbation in initial angle [rad]
+        duration: Total simulation duration [s]
     """
 
     dp1 = create_real_double_pendulum()
     dp2 = create_real_double_pendulum()
-    dp2.state[2] += epsilon  # Small perturbation on theta 2
+    dp2.state[2] += epsilon  # Small perturbation on theta 2 [rad]
 
     dt = 0.0001                       # Time step [s]
     t_max = duration                  # Total duration [s]
     n_steps = Int(floor(t_max / dt))  # Number of steps
 
-    times = zeros(n_steps)
+    times = zeros(n_steps)      # To store time points [s]
 
-    traj1_th1 = zeros(n_steps) # To store theta 1 of pendulum 1
-    traj2_th1 = zeros(n_steps) # To store theta 1 of pendulum 2
-    diffs_th1 = zeros(n_steps) # To store differences of theta 1
+    traj1_th1 = zeros(n_steps) # To store theta 1 of pendulum 1 [rad]
+    traj2_th1 = zeros(n_steps) # To store theta 1 of pendulum 2 [rad]
+    diffs_th1 = zeros(n_steps) # To store differences of theta 1 [rad]
 
-    traj1_th2 = zeros(n_steps) # To store theta 2 of pendulum 1
-    traj2_th2 = zeros(n_steps) # To store theta 2 of pendulum 2
-    diffs_th2 = zeros(n_steps) # To store differences of theta 2
+    traj1_th2 = zeros(n_steps) # To store theta 2 of pendulum 1 [rad]
+    traj2_th2 = zeros(n_steps) # To store theta 2 of pendulum 2 [rad]
+    diffs_th2 = zeros(n_steps) # To store differences of theta 2 [rad]
 
     for i in 1:n_steps
         rk4_step!(dp1, dt)
@@ -112,7 +116,7 @@ function show_chaos_demo(epsilon::Float64=1e-6, duration::Float64=10.0)
         label="|Δθ1|", color=:purple,
         title="Divergence Log (Th1)", xlabel="Time [s]", ylabel="Log(|Δθ|)", legend=:topleft)
 
-    # Add theoretical line e^(λt)
+    # Add theoretical line
     theoretical_th1 = epsilon .* exp.(lambda_th1 .* times)
     plot!(p3, times, theoretical_th1,
         label="Theory: ε·e^(λt)", color=:orange, linestyle=:dash, lw=2)
