@@ -3,6 +3,9 @@ Soit un double pendule constitué de deux masses ponctuelles $m_1$ et $m_2$
 suspendues par des tiges sans masse de longueurs $l_1$ et $l_2$ respectivement. 
 Les angles $\theta_1$ et $\theta_2$ sont mesurés par rapport à la verticale.
 
+<img src="schema_double_pendulum.jpeg" alt="Schéma des composantes du Pendule Double" width="200"/>
+<img src="schema_dp_forces.jpeg" alt="Schéma des forces du Pendule Double" width="200"/>
+
 Position de la masse $m_1$:
 $$ \overrightarrow{r_1} =
     \begin{cases}
